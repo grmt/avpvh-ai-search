@@ -46,13 +46,20 @@ class AdminModelDiagnosticsSectionRenderer {
      */
     private function buildAliasTargets(array $modelStatuses, array $officialLatestAliases): array {
         return [
-            'gemini-flash-latest' => !empty($modelStatuses['gemini-flash-latest']['resolved_model'])
-                ? (string) $modelStatuses['gemini-flash-latest']['resolved_model']
-                : (string) ($officialLatestAliases['flash_latest'] ?? ''),
-            'gemini-pro-latest' => !empty($modelStatuses['gemini-pro-latest']['resolved_model'])
-                ? (string) $modelStatuses['gemini-pro-latest']['resolved_model']
-                : (string) ($officialLatestAliases['pro_latest'] ?? ''),
+            'gemini-flash-latest' => $this->resolveAliasTarget('gemini-flash-latest', $modelStatuses, (string) ($officialLatestAliases['flash_latest'] ?? '')),
+            'gemini-pro-latest' => $this->resolveAliasTarget('gemini-pro-latest', $modelStatuses, (string) ($officialLatestAliases['pro_latest'] ?? '')),
         ];
+    }
+
+    /**
+     * The model an alias pointed to at its last test. A test whose response did not name
+     * the real model records the alias itself; treat that as unknown and use the fallback.
+     *
+     * @param array<string,mixed> $modelStatuses
+     */
+    private function resolveAliasTarget(string $alias, array $modelStatuses, string $fallback): string {
+        $resolved = trim((string) ($modelStatuses[$alias]['resolved_model'] ?? ''));
+        return $resolved !== '' && $resolved !== $alias ? $resolved : $fallback;
     }
 
     /**
@@ -386,7 +393,7 @@ class AdminModelDiagnosticsSectionRenderer {
     private function getTableColumns(): array {
         return [
             ['key' => 'version', 'type' => 'text', 'label' => 'Version'],
-            ['key' => 'latest', 'type' => 'text', 'label' => 'Latest'],
+            ['key' => 'latest', 'type' => 'text', 'label' => 'Latest alias'],
             ['key' => 'family', 'type' => 'text', 'label' => 'Flash/Pro'],
             ['key' => 'track', 'type' => 'text', 'label' => 'Preview/Stable'],
             ['key' => 'test', 'type' => 'date', 'label' => 'Latest test'],

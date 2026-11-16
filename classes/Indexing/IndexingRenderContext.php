@@ -47,6 +47,10 @@ class IndexingRenderContext {
         $previousDisplayErrors = ini_get('display_errors');
 
         ini_set('display_errors', '0');
+        // Easy Table of Contents adds a debug box to the content for administrators
+        // when WP_DEBUG is on; the indexing user is usually an administrator.
+        add_filter('Eztoc/Table_Of_Contents/Debug/Enabled', '__return_false', 999);
+        add_filter('Eztoc/Table_Of_Contents/Debug/Display', '__return_false', 999);
         ob_start();
         try {
             if ($switchUser) {
@@ -56,6 +60,8 @@ class IndexingRenderContext {
             return $callback();
         } finally {
             ob_end_clean();
+            remove_filter('Eztoc/Table_Of_Contents/Debug/Enabled', '__return_false', 999);
+            remove_filter('Eztoc/Table_Of_Contents/Debug/Display', '__return_false', 999);
             if ($switchUser) {
                 wp_set_current_user($previousUserId);
             }

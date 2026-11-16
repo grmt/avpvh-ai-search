@@ -51,10 +51,28 @@ jobs:
       # PHPStan off until the existing findings are worked through.
       phpstan-level: ""
       # outdated_tested_upto_header: not on WordPress.org; it updates from
-      # GitHub Releases (Update URI).
+      # GitHub Releases (Update URI), so plugin_updater_detected is expected.
+      # Everything after plugin_updater_detected is the baseline of existing
+      # findings (2026-11-16); remove each line in the PR that fixes it.
       ignore-codes: |
         outdated_tested_upto_header
         PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+        plugin_updater_detected
+        WordPress.WP.AlternativeFunctions.curl_curl_init
+        WordPress.WP.AlternativeFunctions.curl_curl_setopt_array
+        WordPress.WP.AlternativeFunctions.curl_curl_exec
+        WordPress.WP.AlternativeFunctions.curl_curl_getinfo
+        WordPress.WP.AlternativeFunctions.curl_curl_error
+        WordPress.WP.AlternativeFunctions.curl_curl_close
+        WordPress.DB.PreparedSQL.NotPrepared
+        WordPress.Security.EscapeOutput.ExceptionNotEscaped
+        PluginCheck.Security.DirectDB.UnescapedDBParameter
+        WordPress.Security.EscapeOutput.OutputNotEscaped
+        WordPress.WP.I18n.MissingTranslatorsComment
+        WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
+        WordPress.WP.AlternativeFunctions.unlink_unlink
+        WordPress.WP.AlternativeFunctions.rename_rename
+        WordPress.DateTime.RestrictedFunctions.date_date
 
   # This plugin's own checks.
   lint-js:

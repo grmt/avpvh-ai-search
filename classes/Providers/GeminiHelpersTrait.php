@@ -371,7 +371,6 @@ trait GeminiHelpersTrait {
 
     private function getStructuredGenerationConfig(): array {
         return [
-            'temperature' => 0.3,
             'responseMimeType' => 'application/json',
             'responseJsonSchema' => [
                 'type' => 'object',

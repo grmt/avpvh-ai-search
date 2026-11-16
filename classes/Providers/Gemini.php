@@ -105,6 +105,7 @@ class Gemini implements AIProviderInterface {
      * @throws \Exception On upload error
      */
     public function uploadDocument(string $content, int $postId): string {
+        StoreSiteBinding::assertWritable($this->getStoreData());
         return $this->createUploadClient()->uploadDocument($content, $postId);
     }
 
@@ -117,6 +118,7 @@ class Gemini implements AIProviderInterface {
      * @throws \Exception
      */
     public function uploadNamedDocument(string $content, string $displayName): string {
+        StoreSiteBinding::assertWritable($this->getStoreData());
         return $this->createUploadClient()->uploadNamedDocument($content, $displayName);
     }
 
@@ -130,6 +132,7 @@ class Gemini implements AIProviderInterface {
      * @throws \Exception
      */
     public function uploadLocalFile(string $filePath, string $displayName, string $mimeType): string {
+        StoreSiteBinding::assertWritable($this->getStoreData());
         return $this->createUploadClient()->uploadLocalFile($filePath, $displayName, $mimeType);
     }
 
@@ -149,6 +152,10 @@ class Gemini implements AIProviderInterface {
      * @throws \Exception On deletion error
      */
     public function deleteDocument(string $documentName): void {
+        // Document names are "fileSearchStores/{store}/documents/{id}": guard the store they live in.
+        if (preg_match('#^(fileSearchStores/[^/]+)/#', ltrim($documentName, '/'), $matches) === 1) {
+            StoreSiteBinding::assertWritable($matches[1]);
+        }
         $this->createUploadClient()->deleteDocument($documentName);
     }
 

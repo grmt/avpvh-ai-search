@@ -47,6 +47,8 @@ class WP {
         $sourceReferenceAjaxController = new SourceReferenceAjaxController(new ManagedSourceReferenceResolver());
         $adminDataAjaxController = new AdminDataAjaxController($this->adminPageSections);
 
+        StoreSiteBinding::registerHooks();
+
         add_action('admin_menu', [$this, 'adminMenu']);
         add_action('admin_post_geweb_save', [$this, 'saveSettings']);
         add_filter('plugin_action_links_' . plugin_basename(GEWEB_AI_SEARCH_PATH . 'geweb-ai-search.php'), [$this, 'addPluginActionLinks']);

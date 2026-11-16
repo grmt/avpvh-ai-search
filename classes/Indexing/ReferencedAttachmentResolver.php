@@ -19,7 +19,7 @@ class ReferencedAttachmentResolver {
             return [];
         }
 
-        $content = (string) apply_filters('the_content', $post->post_content);
+        $content = IndexingRenderContext::renderPostContent($post);
         if ($content === '') {
             return [];
         }

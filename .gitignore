@@ -1,2 +1,3 @@
 *.zip
 .fuse_hidden*
+node_modules/

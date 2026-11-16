@@ -1,31 +1,68 @@
 name: "CI"
-
 on:
+  # Branches are tested through their pull request (the merge result);
+  # main once more after each merge.
   push:
-    branches: "*"
+    branches: [main]
   pull_request:
+  # The release workflow runs CI and zips its build.
+  workflow_call:
+
+permissions:
+  contents: read
 
 env:
-  php-version: 8.4
   node-version: 24.16.0
   npm-version: 11.13.0
 
 jobs:
-  lint:
-    name: "Lint"
+  build:
+    name: "Build"
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
         uses: actions/checkout@v7
 
-      - name: "Setup PHP"
-        uses: shivammathur/setup-php@2.40.0
-        with:
-          php-version: ${{ env.php-version }}
-          coverage: none
+      # git archive honours export-ignore in .gitattributes, so this holds
+      # exactly what the release ZIP holds: no docs, scripts, tests or CI files.
+      - name: "Package what a release ships"
+        run: |
+          mkdir build
+          git archive HEAD | tar -x -C build
 
-      - name: "Check PHP syntax"
-        run: find classes scripts -type f -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: "Upload artifact"
+        uses: actions/upload-artifact@v7
+        with:
+          name: "build-artifact"
+          path: build
+
+  # Shared with the other own plugins: declared PHP floor, syntax on 8.4 and
+  # 8.5, PHPCompatibility, naming style and the WordPress.org Plugin Check on
+  # the build.
+  plugin-checks:
+    name: "Shared"
+    needs: build
+    uses: grmt/wp-plugin-ci/.github/workflows/plugin-checks.yml@main
+    with:
+      slug: avpvh-ai-search
+      artifact: build-artifact
+      # No prefix check yet: options, tables and the namespace keep their
+      # geweb names until a migration to avpvh_srch_ (see readme 3.0.0).
+      # PHPStan off until the existing findings are worked through.
+      phpstan-level: ""
+      # outdated_tested_upto_header: not on WordPress.org; it updates from
+      # GitHub Releases (Update URI).
+      ignore-codes: |
+        outdated_tested_upto_header
+        PluginCheck.CodeAnalysis.Offloading.OffloadedContent
+
+  # This plugin's own checks.
+  lint-js:
+    name: "ESLint"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v7
 
       - name: "Setup Node.js"
         uses: actions/setup-node@v7
@@ -41,20 +78,3 @@ jobs:
 
       - name: "Lint JavaScript"
         run: npm run lint
-
-  plugin-check:
-    name: "WordPress Plugin Check"
-    runs-on: ubuntu-latest
-    # Non-blocking until the existing Plugin Check findings are cleaned up.
-    continue-on-error: true
-    steps:
-      - name: "Checkout"
-        uses: actions/checkout@v7
-
-      - name: "Run plugin check"
-        uses: wordpress/plugin-check-action@v1
-        with:
-          build-dir: .
-          ignore-codes: |
-            missing_composer_json_file
-            PluginCheck.CodeAnalysis.Offloading.OffloadedContent

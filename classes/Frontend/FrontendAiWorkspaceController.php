@@ -356,14 +356,13 @@ class FrontendAiWorkspaceController {
 
         $tagName = $isFrontendAiPage ? 'section' : 'dialog';
         $pageViewClass = $isFrontendAiPage ? ' geweb-aisearch-modal-window--page' : '';
-        $pageViewAttribute = $isFrontendAiPage ? ' data-geweb-page-view="1"' : '';
         $title = (string) apply_filters('geweb_aisearch_ai_modal_title', 'AI Assistant');
         if (isset($this->renderOverrides['title']) && trim((string) $this->renderOverrides['title']) !== '') {
             $title = (string) $this->renderOverrides['title'];
         }
         $showManageLink = !isset($this->renderOverrides['show_manage_link']) || !empty($this->renderOverrides['show_manage_link']);
         ?>
-        <<?php echo esc_html($tagName); ?> id="geweb-ai-modal" class="geweb-aisearch-modal-window geweb-aisearch-modal-window--<?php echo esc_attr(FrontendAiContext::getFrontendAiInterface()); ?><?php echo esc_attr($pageViewClass); ?>" aria-label="<?php echo esc_attr($title); ?>"<?php echo $pageViewAttribute; ?>>
+        <<?php echo esc_html($tagName); ?> id="geweb-ai-modal" class="geweb-aisearch-modal-window geweb-aisearch-modal-window--<?php echo esc_attr(FrontendAiContext::getFrontendAiInterface()); ?><?php echo esc_attr($pageViewClass); ?>" aria-label="<?php echo esc_attr($title); ?>"<?php if ($isFrontendAiPage) : ?> data-geweb-page-view="1"<?php endif; ?>>
             <?php if (!$isFrontendAiPage): ?>
                 <div class="modal-header">
                     <strong class="ai-assistant-title"><?php echo esc_html($title); ?></strong>

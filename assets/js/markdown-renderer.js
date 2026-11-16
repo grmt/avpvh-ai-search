@@ -10,10 +10,11 @@
 			.replaceAll("'", '&#039;');
 	}
 
+	// Parsed in an inert DOMParser document: nothing in the text can run or load.
 	function decodeHtmlEntities(text) {
-		const textarea = globalThis.document.createElement('textarea');
-		textarea.innerHTML = String(text || '');
-		return textarea.value;
+		const source = String(text || '').replaceAll(/<\/textarea/gi, '&lt;/textarea');
+		const doc = new globalThis.DOMParser().parseFromString(`<!doctype html><textarea>${source}</textarea>`, 'text/html');
+		return doc.querySelector('textarea')?.value ?? '';
 	}
 
 	function getUrlLeaf(url) {

@@ -67,7 +67,6 @@ jobs:
         WordPress.DB.PreparedSQL.NotPrepared
         WordPress.Security.EscapeOutput.ExceptionNotEscaped
         PluginCheck.Security.DirectDB.UnescapedDBParameter
-        WordPress.Security.EscapeOutput.OutputNotEscaped
         WordPress.WP.I18n.MissingTranslatorsComment
         WordPress.WP.AlternativeFunctions.strip_tags_strip_tags
         WordPress.WP.AlternativeFunctions.unlink_unlink

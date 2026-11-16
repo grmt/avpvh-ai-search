@@ -16,7 +16,7 @@ This file provides essential context, architecture overview, and development gui
 
 - **Namespace**: `Geweb\AISearch\`
 - **Autoloader**: The plugin uses a custom autoloader (or Composer's PSR-4) mapping the `Geweb\AISearch\` namespace to the `classes/` directory.
-- `geweb-ai-search.php`: Main plugin file containing plugin headers, constants, and initialization.
+- `avpvh-ai-search.php`: Main plugin file containing plugin headers, constants, and initialization.
 - `classes/`: Contains all PHP classes organized into subdirectories by domain:
   - `Admin/`: Admin dashboard pages, settings, and tables.
   - `Conversation/`: Handling of AI conversations and prompt history.

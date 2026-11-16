@@ -58,8 +58,11 @@ class GeminiStoreClient {
             $result = $this->callCallback('makeRequestCallback', [$url, $body, 'POST'], [], self::STORE_REQUEST_CALLBACK_MISSING);
             if (!empty($result['name']) && $this->callCallback('updateScopedOptionCallback', [$this->optionStore, (string) $result['name']], false)) {
                 $newStore = (string) $result['name'];
+                StoreSiteBinding::bind($newStore);
                 $this->clearStoresCache();
-                if ($previousStore !== '' && $previousStore !== $newStore) {
+                if ($previousStore !== '' && $previousStore !== $newStore && !StoreSiteBinding::isBoundToCurrentSite($previousStore)) {
+                    error_log('WARN geweb-ai-search: kept previous Gemini store "' . $previousStore . '" because it belongs to another site.');
+                } elseif ($previousStore !== '' && $previousStore !== $newStore) {
                     try {
                         $this->deleteStoreByName($previousStore);
                     } catch (\Exception $e) {
@@ -81,6 +84,7 @@ class GeminiStoreClient {
             return;
         }
 
+        StoreSiteBinding::assertWritable($storeName);
         $this->deleteStoreByName($storeName);
         $this->callCallback('deleteScopedOptionCallback', [$this->optionStore]);
         $this->clearStoresCache();

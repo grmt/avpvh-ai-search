@@ -51,7 +51,7 @@ class WorkspacePageRestController {
 
         return new WP_Error(
             'geweb_ai_search_forbidden',
-            __('You are not allowed to create pages for the requested workspace.', 'geweb-ai-search'),
+            __('You are not allowed to create pages for the requested workspace.', 'avpvh-ai-search'),
             ['status' => rest_authorization_required_code()]
         );
     }
@@ -64,7 +64,7 @@ class WorkspacePageRestController {
 
         return new WP_Error(
             'geweb_ai_search_forbidden',
-            __('You are not allowed to modify this workspace page.', 'geweb-ai-search'),
+            __('You are not allowed to modify this workspace page.', 'avpvh-ai-search'),
             ['status' => rest_authorization_required_code()]
         );
     }
@@ -74,7 +74,7 @@ class WorkspacePageRestController {
         if ($workspaceId === '') {
             return $this->requestHelper->buildErrorResponse(
                 'geweb_ai_search_workspace_required',
-                __('A workspace_id is required when the user belongs to multiple workspaces.', 'geweb-ai-search'),
+                __('A workspace_id is required when the user belongs to multiple workspaces.', 'avpvh-ai-search'),
                 400
             );
         }
@@ -86,7 +86,7 @@ class WorkspacePageRestController {
         ) {
             return $this->requestHelper->buildErrorResponse(
                 'geweb_ai_search_invalid_parent',
-                __('The selected parent page is outside your workspace.', 'geweb-ai-search'),
+                __('The selected parent page is outside your workspace.', 'avpvh-ai-search'),
                 403
             );
         }
@@ -110,7 +110,7 @@ class WorkspacePageRestController {
         if (!$this->accessController->canAssignParentPage(get_current_user_id(), $parentPageId)) {
             return $this->requestHelper->buildErrorResponse(
                 'geweb_ai_search_invalid_parent',
-                __('The selected parent page is outside your workspace.', 'geweb-ai-search'),
+                __('The selected parent page is outside your workspace.', 'avpvh-ai-search'),
                 403
             );
         }

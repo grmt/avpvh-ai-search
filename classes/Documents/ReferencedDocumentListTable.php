@@ -292,7 +292,7 @@ class ReferencedDocumentListTable extends \WP_List_Table {
         return sprintf(
             '<a href="#" class="geweb-ai-markdown-cache-view" data-cache-kind="document" data-file-hash="%s" title="%s" style="display:inline-block;font-weight:600;color:%s;">%s</a>',
             esc_attr($fileHash),
-            esc_attr__('View cached Markdown for this document', 'geweb-ai-search'),
+            esc_attr__('View cached Markdown for this document', 'avpvh-ai-search'),
             esc_attr(self::COLOR_SUCCESS),
             esc_html(size_format($bytes, 1))
         );

@@ -93,9 +93,9 @@ trait WPAjaxTrait {
                 'error_message' => '',
                 'progress' => [
                     'stage' => 'queued',
-                    'label' => __('Queued', 'geweb-ai-search'),
+                    'label' => __('Queued', 'avpvh-ai-search'),
                     'thoughts' => [
-                        __('Queued the request and waiting for the background worker to start.', 'geweb-ai-search'),
+                        __('Queued the request and waiting for the background worker to start.', 'avpvh-ai-search'),
                     ],
                     'supports_thoughts' => strpos(strtolower($selectedModel), 'gemini-3') === 0,
                     'updated_at' => time(),
@@ -123,7 +123,7 @@ trait WPAjaxTrait {
 
         $jobId = isset($_POST['job_id']) ? sanitize_text_field(wp_unslash($_POST['job_id'])) : '';
         if ($jobId === '') {
-            wp_send_json_error(['message' => __('Missing AI chat job id.', 'geweb-ai-search')], 400);
+            wp_send_json_error(['message' => __('Missing AI chat job id.', 'avpvh-ai-search')], 400);
         }
 
         $job = $this->aiChatJobStore->read($jobId);
@@ -132,7 +132,7 @@ trait WPAjaxTrait {
             $job = null;
         }
         if ($job === null) {
-            wp_send_json_error(['message' => __('AI chat job was not found or has expired.', 'geweb-ai-search')], 404);
+            wp_send_json_error(['message' => __('AI chat job was not found or has expired.', 'avpvh-ai-search')], 404);
         }
 
         $status = sanitize_key((string) ($job['status'] ?? 'queued'));
@@ -148,7 +148,7 @@ trait WPAjaxTrait {
         if ($payload['status'] === 'completed') {
             $payload['result'] = isset($job['result']) && is_array($job['result']) ? $job['result'] : [];
         } elseif ($payload['status'] === 'error') {
-            $payload['message'] = trim((string) ($job['error_message'] ?? '')) ?: __('The AI request failed.', 'geweb-ai-search');
+            $payload['message'] = trim((string) ($job['error_message'] ?? '')) ?: __('The AI request failed.', 'avpvh-ai-search');
             $payload['meta'] = isset($job['error_meta']) && is_array($job['error_meta']) ? $job['error_meta'] : [];
         }
 

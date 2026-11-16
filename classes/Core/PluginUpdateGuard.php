@@ -9,7 +9,7 @@ class PluginUpdateGuard {
     private const DEFAULT_GUARD_SECONDS = 90;
 
     public static function boot(): void {
-        $currentVersion = defined('GEWEB_AI_SEARCH_VERSION') ? (string) GEWEB_AI_SEARCH_VERSION : '';
+        $currentVersion = defined('AVPVH_SRCH_VERSION') ? (string) AVPVH_SRCH_VERSION : '';
         if ($currentVersion === '') {
             return;
         }
@@ -36,7 +36,7 @@ class PluginUpdateGuard {
     }
 
     public static function getNoticeMessage(): string {
-        return 'Workspace AI Search is updating. Expensive syncs and write actions are temporarily paused while the new version settles.';
+        return 'AV-PvH AI Search is updating. Expensive syncs and write actions are temporarily paused while the new version settles.';
     }
 
     /**

@@ -964,7 +964,7 @@ class PostIndexManager { // NOSONAR - This is the main orchestration point for a
                 $post = get_post($postId);
                 if ($post instanceof \WP_Post && $post->post_type === 'page') {
                     $content = (string) $post->post_content;
-                    $hideControls = $content !== '' && (has_shortcode($content, 'geweb_ai_search') || (bool) preg_match('/\[[^\]]+\]/', $content));
+                    $hideControls = $content !== '' && (FrontendAiWorkspaceController::hasSearchShortcode($content) || (bool) preg_match('/\[[^\]]+\]/', $content));
                 }
             }
         }

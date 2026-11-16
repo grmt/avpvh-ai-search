@@ -100,7 +100,7 @@ class ConversationListTable extends \WP_List_Table {
      * @return void
      */
     public function no_items(): void {
-        esc_html_e('No saved chats yet. A chat is added here after a successful AI response.', 'geweb-ai-search');
+        esc_html_e('No saved chats yet. A chat is added here after a successful AI response.', 'avpvh-ai-search');
     }
 
     /**
@@ -241,11 +241,11 @@ class ConversationListTable extends \WP_List_Table {
 
     private function resolveGroupScopeLabel(string $scope): string {
         $labels = [
-            'group_administrators' => __('Administrators', 'geweb-ai-search'),
-            'group_authenticated' => __('Authenticated users', 'geweb-ai-search'),
-            'group_content_creators' => __('Content creators', 'geweb-ai-search'),
-            'group_guests' => __('Guests', 'geweb-ai-search'),
-            'group_readers' => __('Readers', 'geweb-ai-search'),
+            'group_administrators' => __('Administrators', 'avpvh-ai-search'),
+            'group_authenticated' => __('Authenticated users', 'avpvh-ai-search'),
+            'group_content_creators' => __('Content creators', 'avpvh-ai-search'),
+            'group_guests' => __('Guests', 'avpvh-ai-search'),
+            'group_readers' => __('Readers', 'avpvh-ai-search'),
         ];
 
         return $labels[$scope] ?? $this->prettifyScopeKey($scope);
@@ -257,7 +257,7 @@ class ConversationListTable extends \WP_List_Table {
         }
 
         if (strpos($scope, 'guest_') === 0) {
-            return __('Guest', 'geweb-ai-search');
+            return __('Guest', 'avpvh-ai-search');
         }
 
         return $this->prettifyScopeKey($scope);

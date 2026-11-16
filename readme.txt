@@ -4,7 +4,7 @@ Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: avpvh-ai-search
@@ -170,6 +170,11 @@ Available filters:
 * `geweb_aisearch_ai_textarea_placeholder` - AI question textarea placeholder
 
 == Changelog ==
+
+= 3.0.1 =
+* Fixed: activation failed on sites with refs tables from older versions ("Multiple primary key defined"); the old primary key is now converted first.
+* Fixed: Easy Table of Contents' WP_DEBUG box no longer ends up in indexed content.
+* Improved: model table column "Latest" is now "Latest alias", and an alias whose last test did not name its real model no longer shows itself as its own target.
 
 = 3.0.0 =
 * Renamed from Workspace AI Search (folder and slug geweb-ai-search) to AV-PvH AI Search (avpvh-ai-search), so WordPress no longer offers Geweb AI Search from wordpress.org as an "update" that would replace this plugin.

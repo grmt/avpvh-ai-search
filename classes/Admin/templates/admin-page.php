@@ -6,7 +6,7 @@ defined('ABSPATH') || exit;
 $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
         ?>
         <div class="wrap">
-            <h1>Workspace AI Search</h1>
+            <h1>AV-PvH AI Search</h1>
             <div id="geweb-ai-admin-preload-state" data-needs-preload="<?php echo !empty($adminPanelsNeedPreload) ? '1' : '0'; ?>" hidden></div>
             <div
                 id="geweb-ai-admin-cache-state"
@@ -351,7 +351,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                                 <option value="fullscreen" <?php selected($frontendAiInterface, 'fullscreen'); ?>>Full-screen workspace</option>
                             </select>
                             <p class="description">Choose how the frontend AI search opens. Modal chat keeps a compact conversation window. Full-screen workspace shows conversation history on the left, the chat in the middle, and sources on the right.</p>
-                            <p class="description">Preferred page-based setup: use the automatically created AI Search page or place the shortcode <code>[geweb_ai_search]</code> on a normal WordPress page that should own the menu and layout.</p>
+                            <p class="description">Preferred page-based setup: use the automatically created AI Search page or place the shortcode <code>[avpvh_ai_search]</code> on a normal WordPress page that should own the menu and layout.</p>
                             <p class="description">Supported shortcode attributes: <code>title</code>, <code>search_results="show|hide"</code>, <code>search_results_height="0-100"</code>, <code>manage_link="show|hide"</code>.</p>
                             <?php if ($frontendAiPageId > 0 && $frontendAiPageUrl !== ''): ?>
                                 <p class="description">Current AI Search page: <a href="<?php echo esc_url((string) $frontendAiPageUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html((string) ($frontendAiPageTitle ?: 'AI Search')); ?></a></p>

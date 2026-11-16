@@ -15,6 +15,6 @@ class FrontendAiAccess {
     }
 
     public static function getFrontendDisabledMessage(): string {
-        return __('AI search is not enabled for this account. Ask an administrator to share the Gemini search configuration for frontend users.', 'geweb-ai-search');
+        return __('AI search is not enabled for this account. Ask an administrator to share the Gemini search configuration for frontend users.', 'avpvh-ai-search');
     }
 }

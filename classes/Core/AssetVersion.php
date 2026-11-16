@@ -13,15 +13,15 @@ class AssetVersion {
      */
     public static function forRelativePath(string $relativePath): string {
         $normalizedPath = ltrim($relativePath, '/');
-        $absolutePath = GEWEB_AI_SEARCH_PATH . $normalizedPath;
+        $absolutePath = AVPVH_SRCH_PATH . $normalizedPath;
 
         if (!file_exists($absolutePath)) {
-            return defined('GEWEB_AI_SEARCH_VERSION') ? (string) GEWEB_AI_SEARCH_VERSION : '1';
+            return defined('AVPVH_SRCH_VERSION') ? (string) AVPVH_SRCH_VERSION : '1';
         }
 
         $mtime = filemtime($absolutePath);
         if ($mtime === false) {
-            return defined('GEWEB_AI_SEARCH_VERSION') ? (string) GEWEB_AI_SEARCH_VERSION : '1';
+            return defined('AVPVH_SRCH_VERSION') ? (string) AVPVH_SRCH_VERSION : '1';
         }
 
         return (string) $mtime;

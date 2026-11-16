@@ -67,10 +67,10 @@ class AiChatJobProcessor {
         $this->updateProgress(
             $job,
             'starting',
-            __('Preparing request', 'geweb-ai-search'),
+            __('Preparing request', 'avpvh-ai-search'),
             [
-                __('Loading the saved conversation state.', 'geweb-ai-search'),
-                __('Checking the selected model and request settings.', 'geweb-ai-search'),
+                __('Loading the saved conversation state.', 'avpvh-ai-search'),
+                __('Checking the selected model and request settings.', 'avpvh-ai-search'),
             ]
         );
         $this->jobStore->write($job);
@@ -152,10 +152,10 @@ class AiChatJobProcessor {
         $this->updateProgress(
             $job,
             'context',
-            __('Preparing context', 'geweb-ai-search'),
+            __('Preparing context', 'avpvh-ai-search'),
             [
-                __('Reviewing the recent conversation for the next request.', 'geweb-ai-search'),
-                __('Checking whether earlier messages need to be compacted.', 'geweb-ai-search'),
+                __('Reviewing the recent conversation for the next request.', 'avpvh-ai-search'),
+                __('Checking whether earlier messages need to be compacted.', 'avpvh-ai-search'),
             ]
         );
         $this->jobStore->write($job);
@@ -180,7 +180,7 @@ class AiChatJobProcessor {
         $this->updateProgress(
             $job,
             'search',
-            __('Waiting for Gemini', 'geweb-ai-search'),
+            __('Waiting for Gemini', 'avpvh-ai-search'),
             $this->buildContextThoughts($context)
         );
         $this->jobStore->write($job);
@@ -193,15 +193,15 @@ class AiChatJobProcessor {
     private function buildContextThoughts(array $context): array {
         $thoughts = [
             !empty($context['compacted'])
-                ? __('Compacted older messages to keep the request focused.', 'geweb-ai-search')
-                : __('Kept the full recent conversation context.', 'geweb-ai-search'),
+                ? __('Compacted older messages to keep the request focused.', 'avpvh-ai-search')
+                : __('Kept the full recent conversation context.', 'avpvh-ai-search'),
         ];
 
         if (trim((string) ($context['summary'] ?? '')) !== '') {
-            $thoughts[] = __('Attached the saved conversation summary for continuity.', 'geweb-ai-search');
+            $thoughts[] = __('Attached the saved conversation summary for continuity.', 'avpvh-ai-search');
         }
 
-        $thoughts[] = __('Prepared the message bundle for Gemini search.', 'geweb-ai-search');
+        $thoughts[] = __('Prepared the message bundle for Gemini search.', 'avpvh-ai-search');
         return $thoughts;
     }
 
@@ -220,9 +220,9 @@ class AiChatJobProcessor {
         $this->updateProgress(
             $job,
             'completed',
-            __('Completed', 'geweb-ai-search'),
+            __('Completed', 'avpvh-ai-search'),
             [
-                __('Gemini returned an answer and the response is ready to display.', 'geweb-ai-search'),
+                __('Gemini returned an answer and the response is ready to display.', 'avpvh-ai-search'),
             ]
         );
         $this->jobStore->write($job);
@@ -240,9 +240,9 @@ class AiChatJobProcessor {
         $this->updateProgress(
             $job,
             'error',
-            __('Request failed', 'geweb-ai-search'),
+            __('Request failed', 'avpvh-ai-search'),
             [
-                __('The request stopped before Gemini returned a complete answer.', 'geweb-ai-search'),
+                __('The request stopped before Gemini returned a complete answer.', 'avpvh-ai-search'),
             ]
         );
         $this->jobStore->write($job);

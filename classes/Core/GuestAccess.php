@@ -26,7 +26,7 @@ class GuestAccess {
         add_action('wp_ajax_' . $action, $handler);
         add_action('wp_ajax_nopriv_' . $action, static function () use ($handler): void {
             if (!self::allowed()) {
-                wp_send_json_error(['message' => __('Log in to use the search.', 'geweb-ai-search')], 401);
+                wp_send_json_error(['message' => __('Log in to use the search.', 'avpvh-ai-search')], 401);
             }
             $handler();
         });

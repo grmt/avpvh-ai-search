@@ -1,23 +1,21 @@
-=== Workspace AI Search ===
+=== AV-PvH AI Search ===
 Contributors: grmt
 Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 2.1.4.32
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: geweb-ai-search
+Text Domain: avpvh-ai-search
 
 Keep native WordPress search results, and add optional AI answers powered by Google Gemini.
 
 == Description ==
 
-Live demo: https://aisearch.mygeweb.com/
+AV-PvH AI Search adds an AI layer to your existing WordPress search powered by Google Gemini AI. Visitors can keep using the standard WordPress search results page from your theme, including excerpts and surrounding context, and optionally continue their search with AI for a direct, contextual answer with source links.
 
-Workspace AI Search adds an AI layer to your existing WordPress search powered by Google Gemini AI. Visitors can keep using the standard WordPress search results page from your theme, including excerpts and surrounding context, and optionally continue their search with AI for a direct, contextual answer with source links.
-
-Workspace AI Search is a spinoff of geweb, expanded into a broader AI search workspace with chats, prompts, document handling, and source-grounded answers.
+AV-PvH AI Search started as a fork of [Geweb AI Search](https://wordpress.org/plugins/geweb-ai-search/) by Evgen Gavrilov (GPLv2) and grew into a broader AI search workspace with chats, prompts, document handling, and source-grounded answers. It is not affiliated with or supported by the original author.
 
 = Key Features =
 
@@ -61,22 +59,25 @@ By using this plugin you agree to Google's Terms of Service and Privacy Policy. 
 
 == Installation ==
 
-= Automatic Installation =
-
-1. Go to **Plugins → Add New**
-2. Search for "Workspace AI Search"
-3. Click **Install Now**, then **Activate**
-
 = Manual Installation =
 
-1. Download the plugin ZIP file
+1. Download the plugin ZIP file from https://github.com/grmt/avpvh-ai-search/releases
 2. Go to **Plugins → Add New → Upload Plugin**
 3. Select the ZIP file and click **Install Now**
 4. Activate the plugin
 
+= Switching from Geweb AI Search =
+
+This plugin uses the same settings, index, chats and database tables as Geweb AI Search, so nothing has to be migrated.
+
+1. Deactivate Geweb AI Search. Do **not** click "Delete": its uninstaller removes the Gemini API key and the index settings.
+2. Remove the `wp-content/plugins/geweb-ai-search` folder from the server (for example with SFTP or WP-CLI `rm`), not via the Plugins screen.
+3. Install and activate AV-PvH AI Search.
+4. Pages with `[geweb_ai_search]` keep working; new pages use `[avpvh_ai_search]`.
+
 = Configuration =
 
-1. Go to **Settings → Workspace AI Search**
+1. Go to **Settings → AV-PvH AI Search**
 2. Enter your Google Gemini API key — get one free at https://aistudio.google.com/app/apikey
 3. Select the AI model (recommended: gemini-3.5-flash for most sites)
 4. Choose which post types to index
@@ -170,6 +171,13 @@ Available filters:
 
 == Changelog ==
 
+= 3.0.0 =
+* Renamed from Workspace AI Search (folder and slug geweb-ai-search) to AV-PvH AI Search (avpvh-ai-search), so WordPress no longer offers Geweb AI Search from wordpress.org as an "update" that would replace this plugin.
+* Added: [avpvh_ai_search] shortcode; [geweb_ai_search] keeps working.
+* Added: Update URI header, so WordPress never looks for updates of this plugin on wordpress.org.
+* Added: stays inactive with an admin notice while Geweb AI Search is still active, instead of crashing.
+* Settings, index, chats and database tables keep their names, so switching over needs no migration.
+
 = 2.1.4.31 =
 * Added: Persistent Markdown cache storage, inspection modal, and shared Markdown renderer
 * Improved: HTML-to-Markdown conversion for WordPress tables, headings, anchors, and source reconstruction
@@ -218,7 +226,7 @@ Available filters:
 == Upgrade Notice ==
 
 = 2.0.0 =
-Major rewrite. After upgrading, please go to Settings → Workspace AI Search and click "Generate Library" to re-index your content. Your API key and settings will be preserved.
+Major rewrite. After upgrading, please go to Settings → AV-PvH AI Search and click "Generate Library" to re-index your content. Your API key and settings will be preserved.
 
 == Third-Party Libraries ==
 
@@ -233,4 +241,4 @@ This plugin bundles the following open-source library:
 
 == Support ==
 
-* GitHub: https://github.com/mygeweb/geweb-ai-search
+* GitHub: https://github.com/grmt/avpvh-ai-search

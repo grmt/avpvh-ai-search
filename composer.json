@@ -4,6 +4,7 @@
         "validate-gemini-fallback-models": "php scripts/validate_gemini_fallback_models.php"
     },
     "require": {
+        "php": ">=8.4",
         "league/html-to-markdown": "^5.0"
     },
     "require-dev": {

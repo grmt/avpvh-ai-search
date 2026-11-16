@@ -2,8 +2,8 @@
 
 **Keep native WordPress search results, and add optional AI answers powered by Google Gemini.**
 
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress)
-![PHP](https://img.shields.io/badge/PHP-7.2%2B-777BB4?logo=php)
+![WordPress](https://img.shields.io/badge/WordPress-7.1%2B-blue?logo=wordpress)
+![PHP](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php)
 ![License](https://img.shields.io/badge/License-GPLv2-green)
 ![Version](https://img.shields.io/badge/Version-3.0.0-orange)
 
@@ -35,8 +35,8 @@ AV-PvH AI Search started as a fork of [Geweb AI Search](https://github.com/mygew
 
 ## Requirements
 
-- PHP 7.2 or higher (libsodium is bundled with PHP 7.2+)
-- WordPress 6.0 or higher
+- PHP 8.4 or higher
+- WordPress 7.1 or higher
 - Google Gemini API key — free at [aistudio.google.com](https://aistudio.google.com/app/apikey)
 
 ## Installation

@@ -10,6 +10,8 @@ License: GPL2
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: avpvh-ai-search
 Domain Path: /languages
+Requires at least: 7.1
+Requires PHP: 8.4
 Update URI: https://github.com/grmt/avpvh-ai-search
 */
 
@@ -105,9 +107,9 @@ add_action('plugins_loaded', function () {
 // Plugin activation hook
 register_activation_hook(__FILE__, function () {
     // Check PHP version
-    if (version_compare(PHP_VERSION, '7.2', '<')) {
+    if (version_compare(PHP_VERSION, '8.4', '<')) {
         deactivate_plugins(plugin_basename(__FILE__));
-        wp_die('AV-PvH AI Search requires PHP 7.2 or higher (for Sodium support). Your current version is ' . PHP_VERSION);
+        wp_die('AV-PvH AI Search requires PHP 8.4 or higher. Your current version is ' . esc_html(PHP_VERSION));
     }
 
     if (!class_exists('\\Geweb\\AISearch\\DocumentStore')) {

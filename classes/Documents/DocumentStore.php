@@ -77,6 +77,13 @@ class DocumentStore {
         self::$schemaEnsured = true;
         global $wpdb;
 
+        // On a fresh install the tables do not exist yet; SHOW COLUMNS would then
+        // raise a database error, which breaks plugin activation under WP_DEBUG.
+        if (!self::tableExists($wpdb, self::$documentsTable) || !self::tableExists($wpdb, self::$refsTable)) {
+            self::install();
+            return;
+        }
+
         $docsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$documentsTable . " LIKE 'owner_key'");
         $refsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$refsTable . " LIKE 'owner_key'");
 
@@ -85,6 +92,11 @@ class DocumentStore {
         }
 
         self::install();
+    }
+
+    private static function tableExists(\wpdb $wpdb, string $table): bool {
+        $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table)));
+        return $found === $table;
     }
 
     /**

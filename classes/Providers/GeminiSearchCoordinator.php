@@ -262,12 +262,29 @@ class GeminiSearchCoordinator {
     }
 
     /**
+     * Format AI answer text as safe HTML. Deliberately not `the_content`: that filter
+     * stack belongs to the page being viewed, and content restriction plugins replace
+     * the whole answer with their "restricted" text for visitors without access.
+     */
+    private function formatAnswerHtml(string $answer): string {
+        $html = wp_kses_post(wpautop($answer));
+
+        /**
+         * Filters the HTML of an AI answer before it is returned.
+         *
+         * @param string $html   Formatted answer HTML.
+         * @param string $answer Raw answer text from the model.
+         */
+        return (string) apply_filters('geweb_aisearch_answer_html', $html, $answer);
+    }
+
+    /**
      * @param string $responseText
      * @param array<string,mixed> $meta
      * @return array<string,mixed>
      */
     private function formatSearchResponse(string $responseText, array $meta, string $model): array {
-        $formattedAnswer = apply_filters('the_content', $responseText);
+        $formattedAnswer = $this->formatAnswerHtml($responseText);
         if ($this->isGemini2Model($model)) {
             return [
                 'answer' => $formattedAnswer,
@@ -288,7 +305,7 @@ class GeminiSearchCoordinator {
             ];
         }
 
-        $decoded['answer'] = apply_filters('the_content', (string) ($decoded['answer'] ?? ''));
+        $decoded['answer'] = $this->formatAnswerHtml((string) ($decoded['answer'] ?? ''));
         if (trim(wp_strip_all_tags((string) $decoded['answer'])) === '') {
             throw new \Exception($this->buildEmptyStructuredAnswerErrorMessage($decoded));
         }

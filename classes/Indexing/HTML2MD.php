@@ -51,7 +51,7 @@ class HTML2MD {
             }
         }
 
-        $content = apply_filters('the_content', $post->post_content);
+        $content = IndexingRenderContext::renderPostContent($post);
         $content = preg_replace('/<script\b[^>]*>(.*?)<\/script>/is', '', $content);
         $content = preg_replace('/<style\b[^>]*>(.*?)<\/style>/is', '', $content);
         $content = $imageOcrService->replaceMarkedUploadsImagesWithOcrText($content);

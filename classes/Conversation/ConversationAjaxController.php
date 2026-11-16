@@ -73,7 +73,7 @@ class ConversationAjaxController {
         check_ajax_referer('geweb_ai_search_search', 'nonce');
 
         if (PluginUpdateGuard::isActive()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Saving chats is temporarily paused.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Saving chats is temporarily paused.'), 503);
         }
 
         $conversationId = isset($_POST['conversation_id']) ? FrontendAiContext::sanitizeConversationId(wp_unslash($_POST['conversation_id'])) : '';
@@ -96,7 +96,7 @@ class ConversationAjaxController {
         check_ajax_referer('geweb_ai_search_search', 'nonce');
 
         if (PluginUpdateGuard::isActive()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Renaming chats is temporarily paused.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Renaming chats is temporarily paused.'), 503);
         }
 
         $conversationId = $this->requireConversationIdFromRequest();
@@ -143,7 +143,7 @@ class ConversationAjaxController {
         check_ajax_referer('geweb_ai_search_search', 'nonce');
 
         if (PluginUpdateGuard::isActive()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Deleting chats is temporarily paused.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Deleting chats is temporarily paused.'), 503);
         }
 
         $conversationId = $this->requireConversationIdFromRequest();

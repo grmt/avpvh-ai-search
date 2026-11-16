@@ -102,7 +102,7 @@ class StoreSiteBinding {
         }
 
         $boundSite = self::getBoundSite($storeName);
-        echo '<div class="notice notice-warning"><p><strong>Workspace AI Search:</strong> ';
+        echo '<div class="notice notice-warning"><p><strong>AV-PvH AI Search:</strong> ';
         echo esc_html(sprintf(
             'The configured Gemini store belongs to %1$s, not to this site (%2$s). This site will not upload to or delete from that store. Create a new store in the plugin settings, or, if this site replaces %1$s (for example after a domain move), confirm it below.',
             $boundSite,

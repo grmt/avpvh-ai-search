@@ -12,6 +12,6 @@
     "npm": "^11.0.0"
   },
   "devDependencies": {
-    "eslint": "^10.9.0"
+    "eslint": "^10.15.0"
   }
 }

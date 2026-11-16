@@ -156,7 +156,7 @@ class AdminPageSections {
         if ($normalizedModel !== '') {
             $supportsFileSearch = in_array($normalizedModel, ['gemini-flash-latest', 'gemini-pro-latest'], true);
             if (!$supportsFileSearch && !$this->isExcludedFileSearchModel($normalizedModel)) {
-                $supportsFileSearch = preg_match('/^gemini-\d[a-z0-9.\-]*-(pro|flash|flash-lite)(?:-|$)/', $normalizedModel) === 1;
+                $supportsFileSearch = GeminiModelRules::isChatModelName($normalizedModel);
             }
         }
 

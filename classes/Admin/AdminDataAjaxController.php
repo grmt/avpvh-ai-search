@@ -638,6 +638,7 @@ class AdminDataAjaxController {
             }
             return true;
         }));
+        $dropdownModels = GeminiModelRules::withoutLatestAliases($dropdownModels, $selectedModel);
 
         wp_send_json_success([
             'models' => array_values($models),

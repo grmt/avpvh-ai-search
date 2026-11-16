@@ -1314,7 +1314,7 @@ return;
 			const serverTimeout = Math.max(
 				30,
 				Number(geweb_aisearch.frontend_ai_request_timeout_seconds) || (
-					resolvedModel.includes('pro')
+					(resolvedModel.includes('pro') || /^gemini-[4-9]/.test(resolvedModel))
 						? fallbackProTimeout + 30
 						: fallbackFlashTimeout + 30
 				)

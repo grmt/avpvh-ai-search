@@ -176,6 +176,7 @@ Available filters:
 * Changed: Google's moving "-latest" aliases (gemini-flash-latest, gemini-pro-latest) are no longer offered in model dropdowns, because Google can change their target model without notice. A site that already uses one keeps working and still sees it.
 * Changed: default model is now gemini-3.8-flash instead of gemini-flash-latest (which pointed to the older 3.5 Flash).
 * Changed: the model table on the General tab lists every available model (including Gemini 4 and 3.8 before their first test), newest first. The "Latest alias" column is replaced by "Note" (Selected, Default, Recommended), and the admin dropdown marks the default and recommended model. A selected -latest alias gets a warning.
+* Added: model table columns Fast, Correct and Value (-- to +++), Price in / out, Released and Deprecated / shutdown, from Google's docs as of 2026-11-18 (GeminiModelCatalog). Deprecated or shut-down models are marked and left out of the dropdown unless selected.
 
 = 3.0.1 =
 * Fixed: activation failed on sites with refs tables from older versions ("Multiple primary key defined"); the old primary key is now converted first.

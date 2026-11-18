@@ -91,7 +91,8 @@ class GeminiModelRules {
             return true;
         }
 
-        return in_array($normalized, ['gemini-pro', 'gemini-flash', 'gemini-pro-vision'], true);
+        return in_array($normalized, ['gemini-pro', 'gemini-flash', 'gemini-pro-vision'], true)
+            || GeminiModelCatalog::isRetired($normalized);
     }
 
     public static function extractRequestedModelFromUrl(string $url): string {

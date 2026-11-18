@@ -337,14 +337,15 @@ class AdminModelDiagnosticsSectionRenderer {
         ?>
         <div id="geweb-model-diagnostics">
             <?php $this->renderCurrentModelDescription($context); ?>
-            <table class="widefat striped geweb-model-diagnostics-table" style="max-width:900px; margin-top:8px;">
+            <div style="overflow-x:auto;"><table class="widefat striped geweb-model-diagnostics-table" style="margin-top:8px;">
                 <?php $this->renderTableHeader(); ?>
                 <tbody>
                     <?php foreach ($matrixRows as $row): ?>
                         <?php $this->renderTableRow($row, $context); ?>
                     <?php endforeach; ?>
                 </tbody>
-            </table>
+            </table></div>
+            <p class="description"><strong>Fast</strong>, <strong>Correct</strong> and <strong>Value</strong> (quality for the price) run from -- to +++. They summarise Google's own descriptions and prices as of <?php echo esc_html(GeminiModelCatalog::CHECKED_ON); ?>; they are not benchmarks. Hover a rating for a one-line summary, or a price marked * for an announced price change.</p>
             <p class="description">The list above is fetched from Gemini when possible and falls back to the bundled defaults if the API is unavailable. <strong>Recommended</strong> is Google's recommendation for new projects; <strong>Default</strong> is used when no model is chosen.</p>
         </div>
         <?php
@@ -412,6 +413,12 @@ class AdminModelDiagnosticsSectionRenderer {
             ['key' => 'latest', 'type' => 'text', 'label' => 'Note'],
             ['key' => 'family', 'type' => 'text', 'label' => 'Type'],
             ['key' => 'track', 'type' => 'text', 'label' => 'Preview/Stable'],
+            ['key' => 'speed', 'type' => 'number', 'label' => 'Fast'],
+            ['key' => 'quality', 'type' => 'number', 'label' => 'Correct'],
+            ['key' => 'value', 'type' => 'number', 'label' => 'Value'],
+            ['key' => 'price', 'type' => 'number', 'label' => 'Price in / out'],
+            ['key' => 'released', 'type' => 'text', 'label' => 'Released'],
+            ['key' => 'retires', 'type' => 'text', 'label' => 'Deprecated / shutdown'],
             ['key' => 'test', 'type' => 'date', 'label' => 'Latest test'],
         ];
     }
@@ -425,12 +432,19 @@ class AdminModelDiagnosticsSectionRenderer {
         if ($displayRow['version'] === '') {
             return;
         }
+        $facts = GeminiModelCatalog::get($displayRow['version']) ?? [];
         ?>
         <tr
             data-sort-version="<?php echo esc_attr(strtolower($displayRow['version'])); ?>"
             data-sort-latest="<?php echo esc_attr(strtolower($displayRow['latest'])); ?>"
             data-sort-family="<?php echo esc_attr(strtolower($displayRow['family'])); ?>"
             data-sort-track="<?php echo esc_attr(strtolower($displayRow['track'])); ?>"
+            data-sort-speed="<?php echo esc_attr((string) $this->ratingScore((string) ($facts['speed'] ?? ''))); ?>"
+            data-sort-quality="<?php echo esc_attr((string) $this->ratingScore((string) ($facts['quality'] ?? ''))); ?>"
+            data-sort-value="<?php echo esc_attr((string) $this->ratingScore((string) ($facts['value'] ?? ''))); ?>"
+            data-sort-price="<?php echo esc_attr($this->priceSortValue((string) ($facts['price'] ?? ''))); ?>"
+            data-sort-released="<?php echo esc_attr((string) ($facts['released'] ?? '')); ?>"
+            data-sort-retires="<?php echo esc_attr($this->buildRetiresText($facts)); ?>"
             data-sort-test="<?php echo esc_attr($displayRow['sort_timestamp']); ?>"
             data-sort-test-status="<?php echo esc_attr(strtolower($displayRow['test_status'])); ?>"
         >
@@ -438,6 +452,12 @@ class AdminModelDiagnosticsSectionRenderer {
             <td style="text-align:center;"><?php echo $displayRow['latest'] !== '' ? '<strong style="white-space:nowrap;">' . esc_html($displayRow['latest']) . '</strong>' : '&nbsp;'; ?></td>
             <td style="text-align:center;"><?php echo esc_html($displayRow['family']); ?></td>
             <td style="text-align:center;"><?php echo esc_html($displayRow['track']); ?></td>
+            <?php foreach (['speed', 'quality', 'value'] as $ratingKey) : ?>
+                <td style="text-align:center; white-space:nowrap; font-family:monospace;" title="<?php echo esc_attr((string) ($facts['summary'] ?? '')); ?>"><?php echo esc_html((string) ($facts[$ratingKey] ?? '')); ?></td>
+            <?php endforeach; ?>
+            <td style="text-align:center; white-space:nowrap;" title="<?php echo esc_attr($this->buildPriceTitle($facts)); ?>"><?php echo esc_html((string) ($facts['price'] ?? '')); ?><?php echo !empty($facts['price_note']) ? ' *' : ''; ?></td>
+            <td style="text-align:center; white-space:nowrap;"><?php echo esc_html((string) ($facts['released'] ?? '')); ?></td>
+            <td style="text-align:center; white-space:nowrap;<?php echo GeminiModelCatalog::isRetired($displayRow['version']) ? ' color:#b32d2e;' : ''; ?>"><?php echo esc_html($this->buildRetiresText($facts)); ?></td>
             <td style="text-align:center;"><?php $this->renderTestCell($displayRow); ?></td>
         </tr>
         <?php
@@ -471,10 +491,51 @@ class AdminModelDiagnosticsSectionRenderer {
         ];
     }
 
+    private function ratingScore(string $rating): int {
+        return substr_count($rating, '+') - substr_count($rating, '-');
+    }
+
+    private function priceSortValue(string $price): string {
+        return preg_match('/\$([0-9.]+)/', $price, $matches) === 1 ? $matches[1] : '';
+    }
+
+    /**
+     * @param array<string,mixed> $facts
+     */
+    private function buildPriceTitle(array $facts): string {
+        $parts = ['USD per 1M input / output tokens, paid tier.'];
+        if (!empty($facts['price_note'])) {
+            $parts[] = 'Price change: ' . $facts['price_note'] . '.';
+        }
+        if (isset($facts['free'])) {
+            $parts[] = $facts['free'] ? 'Free tier available.' : 'No free tier.';
+        }
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * @param array<string,mixed> $facts
+     */
+    private function buildRetiresText(array $facts): string {
+        $parts = [];
+        if (!empty($facts['deprecated'])) {
+            $parts[] = 'deprecated ' . $facts['deprecated'];
+        }
+        if (!empty($facts['shutdown'])) {
+            $parts[] = 'shutdown ' . $facts['shutdown'];
+        }
+        if ($parts !== [] && !empty($facts['replacement'])) {
+            $parts[] = '→ ' . $facts['replacement'];
+        }
+
+        return implode(', ', $parts);
+    }
+
     private function renderVersionCell(string $version): void {
         echo '<code style="white-space:nowrap;">' . esc_html($version) . '</code>';
         $provider = ProviderFactory::make();
-        if ($provider instanceof Gemini && $provider->isDeprecatedModel($version)) {
+        if (GeminiModelCatalog::isRetired($version) || ($provider instanceof Gemini && $provider->isDeprecatedModel($version))) {
             echo '<br><span style="color:#dba617; font-size:10px; font-weight:600; text-transform:uppercase;">Deprecated</span>';
         }
     }

@@ -337,6 +337,17 @@ class AdminModelDiagnosticsSectionRenderer {
         ?>
         <div id="geweb-model-diagnostics">
             <?php $this->renderCurrentModelDescription($context); ?>
+            <p class="geweb-model-filter" style="display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:8px 0 0;">
+                <label>
+                    <span class="screen-reader-text">Filter models</span>
+                    <input type="search" class="geweb-model-filter-search" placeholder="Filter models, e.g. flash or gemini-4" style="min-width:260px;">
+                </label>
+                <label>
+                    <input type="checkbox" class="geweb-model-filter-hide-retired" checked>
+                    Hide deprecated and shut-down models
+                </label>
+                <span class="description geweb-model-filter-count" aria-live="polite"></span>
+            </p>
             <div style="overflow-x:auto;"><table class="widefat striped geweb-model-diagnostics-table" style="margin-top:8px;">
                 <?php $this->renderTableHeader(); ?>
                 <tbody>
@@ -446,6 +457,8 @@ class AdminModelDiagnosticsSectionRenderer {
             data-sort-released="<?php echo esc_attr((string) ($facts['released'] ?? '')); ?>"
             data-sort-retires="<?php echo esc_attr($this->buildRetiresText($facts)); ?>"
             data-sort-test="<?php echo esc_attr($displayRow['sort_timestamp']); ?>"
+            data-filter-text="<?php echo esc_attr(strtolower(implode(' ', [$displayRow['version'], $displayRow['latest'], $displayRow['family'], $displayRow['track']]))); ?>"
+            data-model-retired="<?php echo esc_attr($this->isHideableRetiredModel($displayRow['version'], $context) ? '1' : '0'); ?>"
             data-sort-test-status="<?php echo esc_attr(strtolower($displayRow['test_status'])); ?>"
         >
             <td><?php $this->renderVersionCell($displayRow['version']); ?></td>
@@ -489,6 +502,20 @@ class AdminModelDiagnosticsSectionRenderer {
             'test_color' => in_array($testStatus, ['failed', 'timeout'], true) ? (string) ($context['statusColorError'] ?? self::STATUS_COLOR_ERROR) : (string) ($context['statusColorSuccess'] ?? self::STATUS_COLOR_SUCCESS),
             'sort_timestamp' => is_array($entry) && !empty($entry['timestamp']) ? (string) ((int) $entry['timestamp']) : '0',
         ];
+    }
+
+    /**
+     * Retired models can be hidden by the filter, except the one that is selected.
+     *
+     * @param array<string,mixed> $context
+     */
+    private function isHideableRetiredModel(string $version, array $context): bool {
+        if ($version === (string) ($context['selectedModel'] ?? '')) {
+            return false;
+        }
+        $provider = ProviderFactory::make();
+
+        return GeminiModelCatalog::isRetired($version) || ($provider instanceof Gemini && $provider->isDeprecatedModel($version));
     }
 
     /**

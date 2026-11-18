@@ -175,6 +175,7 @@ Available filters:
 * Added: Gemini 4 models (gemini-4-carbon, gemini-4-argon, gemini-4-hydrogen). Model names without -flash or -pro were filtered out before; Gemini 4 models also get the longer Pro timeout.
 * Changed: Google's moving "-latest" aliases (gemini-flash-latest, gemini-pro-latest) are no longer offered in model dropdowns, because Google can change their target model without notice. A site that already uses one keeps working and still sees it.
 * Changed: default model is now gemini-3.8-flash instead of gemini-flash-latest (which pointed to the older 3.5 Flash).
+* Changed: the model table on the General tab lists every available model (including Gemini 4 and 3.8 before their first test), newest first. The "Latest alias" column is replaced by "Note" (Selected, Default, Recommended), and the admin dropdown marks the default and recommended model. A selected -latest alias gets a warning.
 
 = 3.0.1 =
 * Fixed: activation failed on sites with refs tables from older versions ("Multiple primary key defined"); the old primary key is now converted first.

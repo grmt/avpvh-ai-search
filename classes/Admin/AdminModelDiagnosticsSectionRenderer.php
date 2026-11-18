@@ -29,6 +29,7 @@ class AdminModelDiagnosticsSectionRenderer {
 
         return [
             'modelStatuses' => $modelStatuses,
+            'models' => isset($args['models']) && is_array($args['models']) ? $args['models'] : [],
             'selectedModel' => isset($args['selectedModel']) ? trim((string) $args['selectedModel']) : '',
             'defaultModel' => isset($args['defaultModel']) ? trim((string) $args['defaultModel']) : '',
             'workingModelHints' => isset($args['workingModelHints']) && is_array($args['workingModelHints']) ? $args['workingModelHints'] : [],
@@ -68,9 +69,8 @@ class AdminModelDiagnosticsSectionRenderer {
      */
     private function buildMatrixRows(array $context): array {
         $modelStatuses = is_array($context['modelStatuses'] ?? null) ? $context['modelStatuses'] : [];
-        $aliasTargets = is_array($context['aliasTargets'] ?? null) ? $context['aliasTargets'] : [];
         $matrixRows = $this->mergeCandidateRows($this->buildCandidateRows($context), $modelStatuses);
-        $this->applyLatestAliasLabels($matrixRows, $aliasTargets);
+        $this->applyModelNotes($matrixRows, $context);
         $matrixRows = $this->filterStaleRows($matrixRows, $modelStatuses);
         $this->sortMatrixRows($matrixRows, $modelStatuses);
 
@@ -85,11 +85,16 @@ class AdminModelDiagnosticsSectionRenderer {
         $aliasTargets = is_array($context['aliasTargets'] ?? null) ? $context['aliasTargets'] : [];
         $latestModelHints = is_array($context['latestModelHints'] ?? null) ? $context['latestModelHints'] : [];
         $candidateRows = [
-            $this->buildCandidateRow('gemini-flash-latest', 'Flash', (string) ($aliasTargets['gemini-flash-latest'] ?? ''), 'gemini-flash-latest'),
-            $this->buildCandidateRow('gemini-pro-latest', 'Pro', (string) ($aliasTargets['gemini-pro-latest'] ?? ''), 'gemini-pro-latest'),
             $this->buildCandidateRow('', 'Flash', (string) ($latestModelHints['stable_flash'] ?? ''), (string) ($latestModelHints['stable_flash'] ?? ''), 'Stable'),
             $this->buildCandidateRow('', 'Pro', (string) ($latestModelHints['stable_pro'] ?? ''), (string) ($latestModelHints['stable_pro'] ?? ''), 'Stable'),
         ];
+        // Every model the dropdown offers, so new models (e.g. Gemini 4) show before their first test.
+        foreach (is_array($context['models'] ?? null) ? $context['models'] : [] as $model) {
+            $model = trim((string) $model);
+            if ($model !== '' && !GeminiModelRules::isLatestAlias($model)) {
+                $candidateRows[] = $this->buildCandidateRow('', $this->getModelFamilyLabel($model), $model, $model);
+            }
+        }
 
         $this->appendWorkingModelRows($candidateRows, is_array($context['workingModelHints'] ?? null) ? $context['workingModelHints'] : []);
         $this->appendTestedModelRows($candidateRows, is_array($context['modelStatuses'] ?? null) ? $context['modelStatuses'] : [], $aliasTargets);
@@ -133,7 +138,7 @@ class AdminModelDiagnosticsSectionRenderer {
     private function appendTestedModelRows(array &$candidateRows, array $modelStatuses, array $aliasTargets): void {
         foreach ($modelStatuses as $testedModel => $status) {
             $testedModel = trim((string) $testedModel);
-            if (!$this->shouldIncludeTestedModel($testedModel, $status)) {
+            if (!$this->shouldIncludeTestedModel($testedModel, $status) || GeminiModelRules::isLatestAlias($testedModel)) {
                 continue;
             }
 
@@ -229,19 +234,26 @@ class AdminModelDiagnosticsSectionRenderer {
     }
 
     /**
+     * Marks the selected, default and Google-recommended model. The notes sort first.
+     *
      * @param array<string,array<string,string>> $matrixRows
-     * @param array<string,string> $aliasTargets
-     * @return void
+     * @param array<string,mixed> $context
      */
-    private function applyLatestAliasLabels(array &$matrixRows, array $aliasTargets): void {
+    private function applyModelNotes(array &$matrixRows, array $context): void {
+        $selectedModel = (string) ($context['selectedModel'] ?? '');
+        $defaultModel = (string) ($context['defaultModel'] ?? '');
         foreach ($matrixRows as $version => &$row) {
-            $derivedLatestLabel = $this->buildLatestAliasLabelForVersion($version, $aliasTargets);
-            if ($derivedLatestLabel !== '') {
-                $existingLatestLabel = trim((string) ($row['latest'] ?? ''));
-                $row['latest'] = $existingLatestLabel === ''
-                    ? $derivedLatestLabel
-                    : $this->mergeLatestAliasLabels($existingLatestLabel, $derivedLatestLabel);
+            $notes = [];
+            if ($version === $selectedModel) {
+                $notes[] = 'Selected';
             }
+            if ($version === $defaultModel) {
+                $notes[] = 'Default';
+            }
+            if ($version === GeminiModelRules::RECOMMENDED_MODEL) {
+                $notes[] = 'Recommended';
+            }
+            $row['latest'] = implode(', ', $notes);
         }
         unset($row);
     }
@@ -279,7 +291,8 @@ class AdminModelDiagnosticsSectionRenderer {
     private function compareMatrixRows(array $left, array $right, array $modelStatuses): int {
         $comparison = $this->compareLatestLabels((string) ($left['latest'] ?? ''), (string) ($right['latest'] ?? ''));
         if ($comparison === 0) {
-            $comparison = strnatcasecmp(strtolower(trim((string) ($left['version'] ?? ''))), strtolower(trim((string) ($right['version'] ?? ''))));
+            // Newest first: gemini-4-* before gemini-3.8-* before gemini-2.5-*.
+            $comparison = strnatcasecmp(strtolower(trim((string) ($right['version'] ?? ''))), strtolower(trim((string) ($left['version'] ?? ''))));
         }
         if ($comparison === 0) {
             $comparison = $this->compareLatestTestTimestamp($left, $right, $modelStatuses);
@@ -332,7 +345,7 @@ class AdminModelDiagnosticsSectionRenderer {
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="description">The list above is fetched from Gemini when possible and falls back to the bundled defaults if the API is unavailable.</p>
+            <p class="description">The list above is fetched from Gemini when possible and falls back to the bundled defaults if the API is unavailable. <strong>Recommended</strong> is Google's recommendation for new projects; <strong>Default</strong> is used when no model is chosen.</p>
         </div>
         <?php
     }
@@ -349,6 +362,9 @@ class AdminModelDiagnosticsSectionRenderer {
             Current model:
             <code><?php echo esc_html($selectedModel); ?></code>
             <?php $this->renderRecentModelStatus($this->getModelStatusEntry($modelStatuses, $selectedModel)); ?>
+            <?php if (GeminiModelRules::isLatestAlias($selectedModel)) : ?>
+                <span style="color:#b32d2e;">Google can switch this alias to another model without notice. Choose a fixed version such as <code><?php echo esc_html(GeminiModelRules::RECOMMENDED_MODEL); ?></code>.</span>
+            <?php endif; ?>
             <br>
             Default model:
             <code><?php echo esc_html($defaultModel); ?></code>
@@ -393,8 +409,8 @@ class AdminModelDiagnosticsSectionRenderer {
     private function getTableColumns(): array {
         return [
             ['key' => 'version', 'type' => 'text', 'label' => 'Version'],
-            ['key' => 'latest', 'type' => 'text', 'label' => 'Latest alias'],
-            ['key' => 'family', 'type' => 'text', 'label' => 'Flash/Pro'],
+            ['key' => 'latest', 'type' => 'text', 'label' => 'Note'],
+            ['key' => 'family', 'type' => 'text', 'label' => 'Type'],
             ['key' => 'track', 'type' => 'text', 'label' => 'Preview/Stable'],
             ['key' => 'test', 'type' => 'date', 'label' => 'Latest test'],
         ];
@@ -419,7 +435,7 @@ class AdminModelDiagnosticsSectionRenderer {
             data-sort-test-status="<?php echo esc_attr(strtolower($displayRow['test_status'])); ?>"
         >
             <td><?php $this->renderVersionCell($displayRow['version']); ?></td>
-            <td style="text-align:center;"><?php echo $displayRow['latest'] !== '' ? '<code style="white-space:nowrap;">' . esc_html($displayRow['latest']) . '</code>' : '&nbsp;'; ?></td>
+            <td style="text-align:center;"><?php echo $displayRow['latest'] !== '' ? '<strong style="white-space:nowrap;">' . esc_html($displayRow['latest']) . '</strong>' : '&nbsp;'; ?></td>
             <td style="text-align:center;"><?php echo esc_html($displayRow['family']); ?></td>
             <td style="text-align:center;"><?php echo esc_html($displayRow['track']); ?></td>
             <td style="text-align:center;"><?php $this->renderTestCell($displayRow); ?></td>
@@ -536,8 +552,12 @@ class AdminModelDiagnosticsSectionRenderer {
         $label = '';
         if (str_contains($normalizedModel, '-pro')) {
             $label = 'Pro';
+        } elseif (str_contains($normalizedModel, '-flash-lite')) {
+            $label = 'Flash-Lite';
         } elseif (str_contains($normalizedModel, '-flash')) {
             $label = 'Flash';
+        } elseif (preg_match('/^gemini-[4-9][0-9.]*-([a-z]+)/', $normalizedModel, $matches) === 1) {
+            $label = ucfirst($matches[1]);
         }
 
         return $label;
@@ -601,27 +621,5 @@ class AdminModelDiagnosticsSectionRenderer {
         }
 
         return $rank;
-    }
-
-    /**
-     * @param array<string,string> $aliasTargets
-     */
-    private function buildLatestAliasLabelForVersion(string $version, array $aliasTargets): string {
-        $labels = [];
-        foreach ($aliasTargets as $alias => $targetVersion) {
-            if (trim($version) !== '' && trim($version) === trim((string) $targetVersion)) {
-                $labels[] = $alias;
-            }
-        }
-
-        return implode(', ', $labels);
-    }
-
-    private function mergeLatestAliasLabels(string $left, string $right): string {
-        $labels = array_filter(array_map('trim', array_merge(explode(',', $left), explode(',', $right))), static function (string $label): bool {
-            return $label !== '';
-        });
-
-        return implode(', ', array_values(array_unique($labels)));
     }
 }

@@ -162,7 +162,12 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                                         <?php endif; ?>
                                         <?php selected($selectedModel, $model); ?>
                                     >
-                                        <?php echo esc_html((string) $model); ?>
+                                        <?php
+                                        $modelOptionNotes = [];
+                                        if ($model === $defaultModel) { $modelOptionNotes[] = 'default'; }
+                                        if ($model === \Geweb\AISearch\GeminiModelRules::RECOMMENDED_MODEL) { $modelOptionNotes[] = 'recommended'; }
+                                        echo esc_html((string) $model . ($modelOptionNotes ? ' (' . implode(', ', $modelOptionNotes) . ')' : ''));
+                                        ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>

@@ -82,7 +82,6 @@ class AdminPageConfigBuilder {
                 'activeTab' => $activeTab,
                 'adminViewCacheState' => AdminViewRevision::ensureCurrentState(),
                 'groupDataRevision' => GroupDataRevision::ensureCurrentRevision(),
-                'inlineStyleHidden' => 'style="display:none;"',
                 'statusColorError' => '#d63638',
                 'statusColorNeutral' => '#646970',
                 'statusColorSuccess' => '#46b450',

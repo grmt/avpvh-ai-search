@@ -254,7 +254,7 @@ class WP {
         check_admin_referer('geweb_ai_search_save_settings');
 
         if (!current_user_can('manage_options')) {
-            wp_die(self::MESSAGE_INSUFFICIENT_PERMISSIONS);
+            wp_die(esc_html(self::MESSAGE_INSUFFICIENT_PERMISSIONS));
         }
 
         try {

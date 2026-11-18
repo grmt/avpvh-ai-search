@@ -2564,9 +2564,9 @@ return;
 		},
 
 		extractPlainTextFromHtml(html) {
-			const container = document.createElement('div');
-			container.innerHTML = String(html || '');
-			return String(container.textContent || container.innerText || '').replaceAll(/\s+/g, ' ').trim();
+			// Inert DOMParser document: images and handlers in the HTML never load or run.
+			const doc = new globalThis.DOMParser().parseFromString(String(html || ''), 'text/html');
+			return String(doc.body?.textContent || '').replaceAll(/\s+/g, ' ').trim();
 		},
 
 		normalizeEpochSeconds(value) {

@@ -220,7 +220,7 @@ trait WPAjaxTrait {
             header('Content-Length: ' . strlen($responseBody));
         }
         ignore_user_abort(true);
-        echo $responseBody;
+        echo $responseBody; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- JSON body from wp_json_encode, sent as application/json.
         if (function_exists('fastcgi_finish_request')) {
             fastcgi_finish_request();
             return;

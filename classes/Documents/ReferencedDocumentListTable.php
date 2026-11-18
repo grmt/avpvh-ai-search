@@ -40,15 +40,14 @@ class ReferencedDocumentListTable extends \WP_List_Table {
         $typeValue = $this->getTypeFilterValue((string) ($item['mime_type'] ?? ''));
         $referencedInValue = $this->getScopeFilterValue($item);
 
-        $attributes = sprintf(
-            ' data-referenced-document-status="%s" data-referenced-document-type="%s" data-referenced-document-referenced-in="%s" data-referenced-document-search="%s"',
+        printf(
+            '<tr data-referenced-document-status="%s" data-referenced-document-type="%s" data-referenced-document-referenced-in="%s" data-referenced-document-search="%s">',
             esc_attr($statusValue),
             esc_attr($typeValue),
             esc_attr($referencedInValue),
             esc_attr($searchText)
         );
 
-        echo '<tr' . $attributes . '>';
         $this->single_row_columns($item);
         echo '</tr>';
     }

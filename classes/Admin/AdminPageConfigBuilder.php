@@ -192,11 +192,11 @@ class AdminPageConfigBuilder {
      * @return array<int,string>
      */
     private function buildDropdownModels(array $models, string $selectedModel, AIProviderInterface $provider): array {
-        return array_values(array_filter($models, function ($model) use ($provider, $selectedModel): bool {
+        return GeminiModelRules::withoutLatestAliases(array_values(array_filter($models, function ($model) use ($provider, $selectedModel): bool {
             return $model === $selectedModel
                 || !$provider instanceof Gemini
                 || !$provider->isDeprecatedModel((string) $model);
-        }));
+        })), $selectedModel);
     }
 
     private function hasValidSavedApiKey(): bool {

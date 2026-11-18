@@ -206,7 +206,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                         $maxAttempts = $systemRetries * (1 + $humanRetries);
                         $frontendAjaxTimeoutBufferSeconds = 60;
                         $selectedModel = (string) ($selectedModel ?? '');
-                        $selectedModelIsPro = strpos(strtolower($selectedModel), 'pro') !== false;
+                        $selectedModelIsPro = \Geweb\AISearch\GeminiModelRules::usesProTimeout($selectedModel);
                         $selectedModelTimeoutDefaultSeconds = $selectedModelIsPro
                             ? \Geweb\AISearch\Gemini::DEFAULT_PRO_HTTP_TIMEOUT_SECONDS
                             : \Geweb\AISearch\Gemini::DEFAULT_HTTP_TIMEOUT_SECONDS;

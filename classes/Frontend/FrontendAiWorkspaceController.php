@@ -722,7 +722,7 @@ class FrontendAiWorkspaceController {
 
     private function getFrontendAiRequestTimeoutSeconds(string $selectedModel): int {
         $resolvedModel = strtolower(trim($selectedModel));
-        $isPro = str_contains($resolvedModel, 'pro');
+        $isPro = GeminiModelRules::usesProTimeout($resolvedModel);
         $configuredTimeout = $isPro
             ? (int) get_option(Gemini::OPTION_TIMEOUT_PRO, Gemini::DEFAULT_PRO_HTTP_TIMEOUT_SECONDS)
             : (int) get_option(Gemini::OPTION_TIMEOUT_FLASH, Gemini::DEFAULT_HTTP_TIMEOUT_SECONDS);

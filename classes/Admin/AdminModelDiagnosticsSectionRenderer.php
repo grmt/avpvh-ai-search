@@ -439,9 +439,9 @@ class AdminModelDiagnosticsSectionRenderer {
             data-sort-latest="<?php echo esc_attr(strtolower($displayRow['latest'])); ?>"
             data-sort-family="<?php echo esc_attr(strtolower($displayRow['family'])); ?>"
             data-sort-track="<?php echo esc_attr(strtolower($displayRow['track'])); ?>"
-            data-sort-speed="<?php echo esc_attr((string) $this->ratingScore((string) ($facts['speed'] ?? ''))); ?>"
-            data-sort-quality="<?php echo esc_attr((string) $this->ratingScore((string) ($facts['quality'] ?? ''))); ?>"
-            data-sort-value="<?php echo esc_attr((string) $this->ratingScore((string) ($facts['value'] ?? ''))); ?>"
+            data-sort-speed="<?php echo esc_attr($this->ratingScore((string) ($facts['speed'] ?? ''))); ?>"
+            data-sort-quality="<?php echo esc_attr($this->ratingScore((string) ($facts['quality'] ?? ''))); ?>"
+            data-sort-value="<?php echo esc_attr($this->ratingScore((string) ($facts['value'] ?? ''))); ?>"
             data-sort-price="<?php echo esc_attr($this->priceSortValue((string) ($facts['price'] ?? ''))); ?>"
             data-sort-released="<?php echo esc_attr((string) ($facts['released'] ?? '')); ?>"
             data-sort-retires="<?php echo esc_attr($this->buildRetiresText($facts)); ?>"
@@ -491,8 +491,11 @@ class AdminModelDiagnosticsSectionRenderer {
         ];
     }
 
-    private function ratingScore(string $rating): int {
-        return substr_count($rating, '+') - substr_count($rating, '-');
+    /**
+     * Empty for unknown models, so they sort after rated ones in either direction.
+     */
+    private function ratingScore(string $rating): string {
+        return $rating === '' ? '' : (string) (substr_count($rating, '+') - substr_count($rating, '-'));
     }
 
     private function priceSortValue(string $price): string {

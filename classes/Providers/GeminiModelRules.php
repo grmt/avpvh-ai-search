@@ -7,6 +7,28 @@ defined('ABSPATH') || exit;
  * Pure Gemini model-name and provider-error classification rules.
  */
 class GeminiModelRules {
+    private const RECOMMENDED_FLASH_MODEL = 'gemini-3.7-flash';
+    private const FLASH_LATEST_ALIAS = 'gemini-flash-latest';
+
+    /**
+     * @param array<int,string> $models
+     * @return array<string,string>
+     */
+    public static function buildModelOptionLabels(array $models): array {
+        $labels = [];
+
+        foreach ($models as $model) {
+            $modelName = trim((string) $model);
+            if ($modelName === self::RECOMMENDED_FLASH_MODEL) {
+                $labels[$modelName] = 'gemini-flash-recommended (3.7) — gemini-3.7-flash';
+            } elseif ($modelName === self::FLASH_LATEST_ALIAS) {
+                $labels[$modelName] = 'gemini-flash-latest (3.5)';
+            }
+        }
+
+        return $labels;
+    }
+
     /**
      * @param array<int,string> $officialAliases
      * @param callable $isPermanentlyUnavailable Receives normalized model name.

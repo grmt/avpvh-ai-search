@@ -105,7 +105,14 @@ class ReferencedDocumentManager {
         }
 
         error_log('geweb-ai-search: uploadReferencedDocumentByHash starting for ' . (string) $reference['file_path']);
-        $documentId = $this->documentStore->getOrCreateDocument((string) $reference['file_path'], (int) $reference['primary_post_id']);
+        $displayNameOverride = !empty($reference['managed_by_chat_library'])
+            ? (string) ($reference['display_name'] ?? '')
+            : '';
+        $documentId = $this->documentStore->getOrCreateDocument(
+            (string) $reference['file_path'],
+            (int) $reference['primary_post_id'],
+            $displayNameOverride
+        );
         if (!$documentId) {
             error_log('geweb-ai-search: uploadReferencedDocumentByHash failed for ' . (string) $reference['file_path']);
             return false;

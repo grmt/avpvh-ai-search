@@ -1,7 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "scripts": {
-        "validate-gemini-fallback-models": "php scripts/validate_gemini_fallback_models.php"
+        "validate-gemini-fallback-models": "php scripts/validate_gemini_fallback_models.php",
+        "validate-indexable-content": "php scripts/validate_indexable_content_normalization.php",
+        "validate-chat-splitter": "php scripts/validate_split_skype_chats.php"
     },
     "require": {
         "league/html-to-markdown": "^5.0"

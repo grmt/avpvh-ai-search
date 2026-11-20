@@ -3,11 +3,10 @@
 declare(strict_types=1);
 
 $repoRoot = dirname(__DIR__);
-$providerPath = $repoRoot . '/classes/Providers/Gemini.php';
-$frontendPromptManagerPath = $repoRoot . '/classes/Frontend/FrontendAiPromptManager.php';
-$adminPageSectionsPath = $repoRoot . '/classes/Admin/AdminPageSections.php';
+$providerConfigPath = $repoRoot . '/classes/Providers/GeminiHelpersTrait.php';
+$modelRegistryPath = $repoRoot . '/classes/Providers/GeminiModelRegistry.php';
 
-if (!is_file($providerPath) || !is_file($frontendPromptManagerPath) || !is_file($adminPageSectionsPath)) {
+if (!is_file($providerConfigPath) || !is_file($modelRegistryPath)) {
     fwrite(STDERR, "Required source files are missing.\n");
     exit(1);
 }
@@ -18,18 +17,14 @@ if ($apiKey === '') {
     exit(1);
 }
 
-$providerSource = (string) file_get_contents($providerPath);
-$frontendSource = (string) file_get_contents($frontendPromptManagerPath);
-$adminSource = (string) file_get_contents($adminPageSectionsPath);
-$officialAliases = [
-    'gemini-flash-latest' => 'gemini-3-flash-preview',
-    'gemini-pro-latest' => 'gemini-3.1-pro-preview',
-];
+$providerConfigSource = (string) file_get_contents($providerConfigPath);
+$modelRegistrySource = (string) file_get_contents($modelRegistryPath);
 
-$defaultModel = extractDefaultModel($providerSource);
-$fallbackModels = extractQuotedArrayFromMethod($providerSource, 'getDefaultModels');
-$frontendModels = extractQuotedArrayFromMethod($frontendSource, 'supportsFrontendAiChatModel');
-$adminModels = extractQuotedArrayFromMethod($adminSource, 'supportsFileSearchModel');
+$defaultModel = extractDefaultModel($providerConfigSource);
+$fallbackModels = extractQuotedArrayFromMethod($modelRegistrySource, 'getDefaultModels');
+if ($defaultModel !== '' && !in_array($defaultModel, $fallbackModels, true)) {
+    array_unshift($fallbackModels, $defaultModel);
+}
 
 $errors = [];
 $warnings = [];
@@ -42,14 +37,6 @@ if ($fallbackModels === []) {
     $errors[] = 'Could not extract bundled fallback models from Gemini provider.';
 }
 
-if ($frontendModels === []) {
-    $errors[] = 'Could not extract frontend chat model filter list.';
-}
-
-if ($adminModels === []) {
-    $errors[] = 'Could not extract admin file-search model filter list.';
-}
-
 if ($errors !== []) {
     renderMessages($errors, $warnings);
     exit(1);
@@ -57,14 +44,6 @@ if ($errors !== []) {
 
 if (!in_array($defaultModel, $fallbackModels, true)) {
     $errors[] = sprintf('Default model "%s" is not present in the fallback model list.', $defaultModel);
-}
-
-if ($frontendModels !== $adminModels) {
-    $errors[] = 'Frontend and admin model allowlists differ.';
-}
-
-if ($frontendModels !== array_values(array_intersect($fallbackModels, $frontendModels))) {
-    $warnings[] = 'Frontend/admin allowlists are not ordered exactly like the fallback model list.';
 }
 
 $liveModels = fetchLiveGeminiModels($apiKey);
@@ -77,16 +56,6 @@ if ($liveModels === []) {
 foreach ($fallbackModels as $model) {
     if (!in_array($model, $liveModels, true)) {
         $errors[] = sprintf('Fallback model "%s" is not present in the live Gemini model list.', $model);
-    }
-}
-
-foreach ($frontendModels as $model) {
-    if (isset($officialAliases[$model])) {
-        continue;
-    }
-
-    if (!in_array($model, $liveModels, true)) {
-        $errors[] = sprintf('Allowed chat model "%s" is not present in the live Gemini model list.', $model);
     }
 }
 

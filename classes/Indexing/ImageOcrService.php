@@ -75,7 +75,7 @@ class ImageOcrService {
         $frontmatter .= "---\n\n";
         $frontmatter .= "# {$title}\n\n";
         $frontmatter .= ($mode === self::MODE_DESCRIBE ? "Image description:\n\n" : "OCR text extracted from image:\n\n");
-        $frontmatter .= trim($processedText) . "\n";
+        $frontmatter .= trim(IndexableContentNormalizer::normalizeMarkdown($processedText)) . "\n";
 
         return $frontmatter;
     }

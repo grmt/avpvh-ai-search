@@ -9,7 +9,7 @@ defined('ABSPATH') || exit;
 class XlsxMarkdownExtractionException extends \RuntimeException {}
 
 /**
- * Extracts basic worksheet content from .xlsx files into Markdown without PHP ZIP/XML extensions.
+ * Extracts basic worksheet content from .xlsx files into Markdown.
  */
 class XlsxMarkdownExtractor {
     /**
@@ -79,6 +79,10 @@ class XlsxMarkdownExtractor {
      * @throws XlsxMarkdownExtractionException
      */
     private function listArchiveEntries(string $filePath): array {
+        if (class_exists(\ZipArchive::class)) {
+            return $this->listZipArchiveEntries($filePath);
+        }
+
         $command = sprintf('unzip -Z1 %s 2>/dev/null', escapeshellarg($filePath));
         $output = [];
         $exitCode = 0;
@@ -96,6 +100,10 @@ class XlsxMarkdownExtractor {
      * @throws XlsxMarkdownExtractionException
      */
     private function readArchiveEntry(string $filePath, string $entryPath): string {
+        if (class_exists(\ZipArchive::class)) {
+            return $this->readZipArchiveEntry($filePath, $entryPath);
+        }
+
         $command = sprintf('unzip -p %s %s 2>/dev/null', escapeshellarg($filePath), escapeshellarg($entryPath));
         $output = shell_exec($command);
         if (!is_string($output) || $output === '') {
@@ -103,6 +111,57 @@ class XlsxMarkdownExtractor {
         }
 
         return $output;
+    }
+
+    /**
+     * @return string[]
+     * @throws XlsxMarkdownExtractionException
+     */
+    private function listZipArchiveEntries(string $filePath): array {
+        $archive = $this->openZipArchive($filePath);
+        $entries = [];
+        try {
+            for ($index = 0; $index < $archive->numFiles; $index++) {
+                $entry = $archive->getNameIndex($index);
+                if (is_string($entry) && $entry !== '') {
+                    $entries[] = $entry;
+                }
+            }
+        } finally {
+            $archive->close();
+        }
+
+        return $entries;
+    }
+
+    /**
+     * @throws XlsxMarkdownExtractionException
+     */
+    private function readZipArchiveEntry(string $filePath, string $entryPath): string {
+        $archive = $this->openZipArchive($filePath);
+        try {
+            $contents = $archive->getFromName($entryPath);
+        } finally {
+            $archive->close();
+        }
+
+        if (!is_string($contents) || $contents === '') {
+            throw new XlsxMarkdownExtractionException(sprintf('Could not read spreadsheet entry: %s', $entryPath));
+        }
+
+        return $contents;
+    }
+
+    /**
+     * @throws XlsxMarkdownExtractionException
+     */
+    private function openZipArchive(string $filePath): \ZipArchive {
+        $archive = new \ZipArchive();
+        if ($archive->open($filePath) !== true) {
+            throw new XlsxMarkdownExtractionException('Could not inspect spreadsheet archive contents.');
+        }
+
+        return $archive;
     }
 
     /**

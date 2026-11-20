@@ -1,0 +1,26 @@
+.geweb-chat-archive { display:grid; grid-template-columns:minmax(280px,34%) 1fr; min-height:68vh; overflow:hidden; border:1px solid #d8ddd8; border-radius:14px; background:#f4f5f2; color:#1c2520; }
+.geweb-chat-archive * { box-sizing:border-box; }
+.geweb-chat-sidebar { display:flex; flex-direction:column; min-width:0; max-height:78vh; background:#17231d; color:#f7f8f2; }
+.geweb-chat-search { padding:20px; border-bottom:1px solid #34453b; }
+.geweb-chat-search label { display:block; margin-bottom:8px; color:#8cc7a6; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+.geweb-chat-search div { display:grid; grid-template-columns:1fr auto; gap:8px; }
+.geweb-chat-search input { min-width:0; padding:10px; border:1px solid #52665a; border-radius:8px; }
+.geweb-chat-search button,.geweb-chat-toggle { padding:10px 13px; border:0; border-radius:8px; background:#d6a84b; color:#201b11; cursor:pointer; font-weight:700; }
+.geweb-chat-summary { margin:10px 20px; color:#aebdb4; font-size:13px; }
+.geweb-chat-documents { margin:0; padding:0 10px 12px; overflow:auto; list-style:none; }
+.geweb-chat-documents li+li { margin-top:4px; }
+.geweb-chat-link { display:grid; gap:4px; width:100%; padding:11px; border:0; border-radius:8px; background:transparent; color:inherit; text-align:left; cursor:pointer; }
+.geweb-chat-link:hover,.geweb-chat-link.active { background:#2a3b32; }
+.geweb-chat-link strong { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.geweb-chat-link span,.geweb-chat-link small { color:#aebdb4; font-size:12px; line-height:1.4; }
+.geweb-chat-link small { display:-webkit-box; overflow:hidden; -webkit-box-orient:vertical; -webkit-line-clamp:3; }
+.geweb-chat-viewer { min-width:0; max-height:78vh; overflow:auto; padding:clamp(20px,4vw,48px); }
+.geweb-chat-empty { max-width:520px; margin:12vh auto 0; padding:28px; border-radius:12px; background:#fff; }
+.geweb-chat-document>header { display:flex; justify-content:space-between; gap:20px; margin-bottom:22px; padding-bottom:18px; border-bottom:1px solid #d9ded9; }
+.geweb-chat-participants { margin:0 0 5px; color:#4d765f; font-size:12px; font-weight:700; text-transform:uppercase; }
+.geweb-chat-title { margin:0; }
+.geweb-chat-meta { color:#66756d; font-size:13px; }
+.geweb-chat-rendered { padding:clamp(20px,3vw,38px); border-radius:12px; background:#fff; line-height:1.65; }
+.geweb-chat-rendered h2 { margin-top:2em; padding-top:1em; border-top:1px solid #e3e7e3; font-size:17px; }
+.geweb-chat-raw { margin:0; padding:24px; border-radius:12px; background:#111b16; color:#e4eee8; white-space:pre-wrap; overflow-wrap:anywhere; }
+@media(max-width:760px){.geweb-chat-archive{grid-template-columns:1fr;}.geweb-chat-sidebar{max-height:45vh}.geweb-chat-viewer{max-height:none;min-height:50vh}}

@@ -92,9 +92,6 @@ class GeminiVisionClient {
                     ],
                 ],
             ]],
-            'generationConfig' => [
-                'temperature' => $systemInstruction !== '' ? 0.1 : 0,
-            ],
         ];
         if ($systemInstruction !== '') {
             $body['systemInstruction'] = ['parts' => [['text' => $systemInstruction]]];
@@ -130,9 +127,6 @@ class GeminiVisionClient {
                         ['text' => $prompt],
                     ],
                 ]],
-                'generationConfig' => [
-                    'temperature' => $systemInstruction !== '' ? 0.1 : 0,
-                ],
             ];
             if ($systemInstruction !== '') {
                 $body['systemInstruction'] = ['parts' => [['text' => $systemInstruction]]];

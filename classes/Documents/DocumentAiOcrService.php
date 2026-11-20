@@ -133,8 +133,8 @@ class DocumentAiOcrService {
             throw new ReferencedDocumentException('Gemini API key is required to convert Document AI OCR to Markdown.');
         }
 
-        $model = apply_filters('geweb_aisearch_document_ai_markdown_model', 'gemini-2.5-pro');
-        $model = is_string($model) && trim($model) !== '' ? trim($model) : 'gemini-2.5-pro';
+        $model = apply_filters('geweb_aisearch_document_ai_markdown_model', 'gemini-3.7-flash');
+        $model = is_string($model) && trim($model) !== '' ? trim($model) : 'gemini-3.7-flash';
         $url = self::GEMINI_API_BASE . '/models/' . rawurlencode($model) . ':generateContent';
         $prompt = "Below is text extracted from a scanned PDF via Google Document AI.\n" .
             "Using this text and layout hints, recreate the original document in Markdown format.\n\n" .
@@ -159,9 +159,6 @@ class DocumentAiOcrService {
                     'role' => 'user',
                     'parts' => [['text' => $prompt]],
                 ]],
-                'generationConfig' => [
-                    'temperature' => 0.1,
-                ],
             ]),
         ]);
 

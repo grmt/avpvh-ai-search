@@ -219,9 +219,6 @@ class Gemini implements AIProviderInterface {
                 'role' => 'user',
                 'parts' => [['text' => $prompt]],
             ]],
-            'generationConfig' => [
-                'temperature' => 0.1,
-            ],
         ];
 
         $result = $this->makeRequest($url, $body, 'POST', $this->getSummaryTimeoutSeconds());

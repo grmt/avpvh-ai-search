@@ -4,7 +4,7 @@ Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.2
-Stable tag: 2.1.4.32
+Stable tag: 2.1.4.33
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: geweb-ai-search
@@ -78,7 +78,7 @@ By using this plugin you agree to Google's Terms of Service and Privacy Policy. 
 
 1. Go to **Settings → Workspace AI Search**
 2. Enter your Google Gemini API key — get one free at https://aistudio.google.com/app/apikey
-3. Select the AI model (recommended: gemini-3.5-flash for most sites)
+3. Select the AI model (gemini-flash-recommended (3.7) selects gemini-3.7-flash; Google's moving gemini-flash-latest (3.5) alias currently selects Gemini 3.5 Flash)
 4. Choose which post types to index
 5. Click **Save Settings** — this will create a Gemini File Search Store automatically
 6. Click **Generate Library** to index all existing published content
@@ -112,7 +112,7 @@ The AI search will return an error. The standard autocomplete search will contin
 
 = Which Gemini models are supported? =
 
-Currently: gemini-3.5-flash, gemini-3.1-pro-preview, gemini-2.5-flash, and gemini-2.5-pro. Gemini 3 models support structured JSON responses with source attribution. Gemini 2.5 models return plain text answers.
+Recommended: the plugin displays gemini-3.7-flash as gemini-flash-recommended (3.7). Google's gemini-flash-latest (3.5) moving alias currently points to Gemini 3.5 Flash. Use gemini-3.5-flash-lite for high-volume, lower-cost processing. Gemini 3.6 Flash remains a stable option for everyday tasks.
 
 == Customization ==
 
@@ -128,7 +128,7 @@ add_filter('geweb_aisearch_gemini_system_instruction', function($instruction) {
 
 // Limit available models in settings
 add_filter('geweb_aisearch_gemini_models', function($models) {
-    return ['gemini-2.5-flash', 'gemini-2.5-pro'];
+    return ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
 });
 `
 
@@ -169,6 +169,11 @@ Available filters:
 * `geweb_aisearch_ai_textarea_placeholder` - AI question textarea placeholder
 
 == Changelog ==
+
+= 2.1.4.33 =
+* Updated: Default Gemini model to Google's latest and most capable Flash model, gemini-3.7-flash
+* Added: Clear model recommendations and moving-alias guidance in settings
+* Added: gemini-3.5-flash-lite for high-volume, lower-cost processing
 
 = 2.1.4.31 =
 * Added: Persistent Markdown cache storage, inspection modal, and shared Markdown renderer

@@ -9,6 +9,7 @@ defined('ABSPATH') || exit;
 class AdminPageConfigBuilder {
     private const GEMINI_CHANGELOG_URL = 'https://ai.google.dev/gemini-api/docs/changelog';
     private const GEMINI_DEPRECATIONS_URL = 'https://ai.google.dev/gemini-api/docs/deprecations';
+    private const GEMINI_LATEST_MODEL_URL = 'https://ai.google.dev/gemini-api/docs/latest-model';
     private const OPTION_SHARE_GEMINI_CONFIG_WITH_FRONTEND = 'geweb_aisearch_share_gemini_config_with_frontend';
     /**
      * @var callable
@@ -150,8 +151,10 @@ class AdminPageConfigBuilder {
         $selectedModel = $provider->getModel();
         $modelStatuses = $provider->getModelStatuses();
         $models = $this->includeSelectedModelIfAvailable($models, $selectedModel, $modelStatuses);
-        $dropdownModels = $this->buildDropdownModels($models, $selectedModel, $provider);
         $modelHintsBuilder = new AdminPageModelHintsBuilder();
+        $dropdownModels = $modelHintsBuilder->prioritizeModelOptions(
+            $this->buildDropdownModels($models, $selectedModel, $provider)
+        );
 
         return [
             'storeEnabled' => !empty($provider->getStoreData()),
@@ -161,6 +164,7 @@ class AdminPageConfigBuilder {
             'hasValidSavedApiKey' => $this->hasValidSavedApiKey(),
             'isGeminiProvider' => $provider instanceof Gemini,
             'latestModelHints' => $modelHintsBuilder->buildLatestModelHints($models),
+            'modelOptionLabels' => $modelHintsBuilder->buildModelOptionLabels($dropdownModels),
             'modelStatuses' => $modelStatuses,
             'models' => $models,
             'officialLatestAliases' => $modelHintsBuilder->buildOfficialLatestAliases(),
@@ -384,6 +388,7 @@ class AdminPageConfigBuilder {
             'workspacesTabUrl' => ($this->getTabUrl)('workspaces'),
             'geminiChangelogUrl' => self::GEMINI_CHANGELOG_URL,
             'geminiDeprecationsUrl' => self::GEMINI_DEPRECATIONS_URL,
+            'geminiLatestModelUrl' => self::GEMINI_LATEST_MODEL_URL,
         ];
     }
 

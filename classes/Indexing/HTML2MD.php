@@ -99,6 +99,7 @@ class HTML2MD {
             return '';
         }
 
+        $content = IndexableContentNormalizer::normalizeSourceHtml($content);
         $content = preg_replace('/<\/?mark\b[^>]*>/i', '', $content) ?? $content;
 
         $content = preg_replace_callback(
@@ -136,6 +137,7 @@ class HTML2MD {
         $normalized = preg_replace('/\n*(<a id="[^"]+"><\/a>)\n*/', "\n\n$1\n\n", $normalized) ?? $normalized;
         $normalized = preg_replace('/(<a\b[^>]*>.*?<\/a>)(?=\|)/is', "$1\n", $normalized) ?? $normalized;
         $normalized = preg_replace(self::REGEX_MULTIPLE_BLANK_LINES, "\n\n", $normalized) ?? $normalized;
+        $normalized = IndexableContentNormalizer::normalizeMarkdown($normalized);
 
         // Use CR/LF line endings for better markdown renderer compatibility
         return str_replace("\n", "\r\n", $normalized);

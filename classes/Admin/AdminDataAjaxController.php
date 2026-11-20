@@ -638,6 +638,8 @@ class AdminDataAjaxController {
             }
             return true;
         }));
+        $modelHintsBuilder = new AdminPageModelHintsBuilder();
+        $dropdownModels = $modelHintsBuilder->prioritizeModelOptions($dropdownModels);
 
         wp_send_json_success([
             'models' => array_values($models),
@@ -645,6 +647,7 @@ class AdminDataAjaxController {
             'selected_model' => $selectedModel,
             'connection_status' => $connectionStatus,
             'model_statuses' => is_array($modelStatuses) ? $modelStatuses : [],
+            'model_option_labels' => $modelHintsBuilder->buildModelOptionLabels($dropdownModels),
             'used_cached_models' => !$shouldForceRefresh,
         ]);
     }

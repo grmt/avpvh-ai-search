@@ -24,6 +24,7 @@ class WP {
     private FrontendAiPromptManager $frontendAiPromptManager;
     private WorkspacePageAccessController $workspacePageAccessController;
     private WorkspacePageRestController $workspacePageRestController;
+    private ChatArchiveController $chatArchiveController;
 
     /**
      * Constructor - registers WordPress hooks
@@ -37,6 +38,12 @@ class WP {
         $this->frontendAiPromptManager = new FrontendAiPromptManager();
         $this->workspacePageAccessController = new WorkspacePageAccessController();
         $this->workspacePageRestController = new WorkspacePageRestController($this->workspacePageAccessController);
+        $chatRepository = new ChatArchiveRepository();
+        $this->chatArchiveController = new ChatArchiveController(
+            $chatRepository,
+            new ChatMeilisearchService($chatRepository)
+        );
+        $this->chatArchiveController->registerHooks();
         $this->frontendAiWorkspaceController = new FrontendAiWorkspaceController(
             fn(string $tab): string => $this->getTabUrl($tab),
             fn(AIProviderInterface $provider): array => $this->frontendAiPromptManager->getFrontendAiChatModelConfig($provider),

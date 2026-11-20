@@ -325,7 +325,7 @@ class AdminModelDiagnosticsSectionRenderer {
                     <?php endforeach; ?>
                 </tbody>
             </table>
-            <p class="description">The list above is fetched from Gemini when possible and falls back to the bundled defaults if the API is unavailable.</p>
+            <p class="description">Aliases show which concrete model they currently resolve to; an alias is not necessarily Google's recommended model. The list is fetched from Gemini when possible and falls back to bundled defaults if the API is unavailable.</p>
         </div>
         <?php
     }
@@ -386,7 +386,7 @@ class AdminModelDiagnosticsSectionRenderer {
     private function getTableColumns(): array {
         return [
             ['key' => 'version', 'type' => 'text', 'label' => 'Version'],
-            ['key' => 'latest', 'type' => 'text', 'label' => 'Latest'],
+            ['key' => 'latest', 'type' => 'text', 'label' => 'Alias'],
             ['key' => 'family', 'type' => 'text', 'label' => 'Flash/Pro'],
             ['key' => 'track', 'type' => 'text', 'label' => 'Preview/Stable'],
             ['key' => 'test', 'type' => 'date', 'label' => 'Latest test'],

@@ -81,10 +81,36 @@ class DocumentStore {
         $refsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$refsTable . " LIKE 'owner_key'");
 
         if ($docsHasOwnerKey && $refsHasOwnerKey) {
+            self::removeLegacyGlobalUniqueIndexes($wpdb);
             return;
         }
 
         self::install();
+    }
+
+    private static function removeLegacyGlobalUniqueIndexes(\wpdb $wpdb): void {
+        $indexRows = $wpdb->get_results("SHOW INDEX FROM " . self::$documentsTable, ARRAY_A);
+        if (!is_array($indexRows)) {
+            return;
+        }
+
+        $indexNames = [];
+        foreach ($indexRows as $indexRow) {
+            $indexName = is_array($indexRow) ? (string) ($indexRow['Key_name'] ?? '') : '';
+            if ($indexName !== '') {
+                $indexNames[$indexName] = true;
+            }
+        }
+
+        $legacyIndexes = [
+            'file_hash' => 'owner_file_hash',
+            'gemini_doc_name' => 'owner_gemini_doc_name',
+        ];
+        foreach ($legacyIndexes as $legacyIndex => $replacementIndex) {
+            if (isset($indexNames[$legacyIndex], $indexNames[$replacementIndex])) {
+                $wpdb->query("ALTER TABLE " . self::$documentsTable . " DROP INDEX `{$legacyIndex}`");
+            }
+        }
     }
 
     /**
@@ -94,7 +120,7 @@ class DocumentStore {
      * @param int $postId The post ID making the request (for naming).
      * @return int|null The document ID or null on failure.
      */
-    public function getOrCreateDocument(string $filePath, int $postId): ?int {
+    public function getOrCreateDocument(string $filePath, int $postId, string $displayNameOverride = ''): ?int {
         self::init();
         $documentId = null;
 
@@ -110,7 +136,7 @@ class DocumentStore {
                     error_log('geweb-ai-search: referenced document already tracked locally: ' . basename($filePath) . self::LOG_DOCUMENT_ID_SUFFIX . (int) $existingId . ')');
                     $documentId = (int) $existingId;
                 } else {
-                    $documentId = $this->uploadAndTrackDocument($filePath, $postId, $fileHash);
+                    $documentId = $this->uploadAndTrackDocument($filePath, $postId, $fileHash, $displayNameOverride);
                 }
             }
         }
@@ -138,7 +164,7 @@ class DocumentStore {
      * @param string $fileHash
      * @return int|null
      */
-    private function uploadAndTrackDocument(string $filePath, int $postId, string $fileHash): ?int {
+    private function uploadAndTrackDocument(string $filePath, int $postId, string $fileHash, string $displayNameOverride = ''): ?int {
         global $wpdb;
         $documentId = null;
         $documentMarkdownCacheStore = new ReferencedDocumentMarkdownCacheStore();
@@ -147,12 +173,15 @@ class DocumentStore {
         if ($mimeType === '') {
             error_log('geweb-ai-search: referenced document upload skipped because MIME type could not be resolved: ' . $filePath);
         } else {
-            $displayName = $postId . '-' . basename($filePath);
+            $displayName = trim($displayNameOverride) !== ''
+                ? trim($displayNameOverride)
+                : $postId . '-' . basename($filePath);
 
             try {
                 $gemini = ProviderFactory::make();
                 $geminiDocName = (new ReferencedDocumentGeminiUploadService())->upload($gemini, $filePath, $displayName, $mimeType, $fileHash);
-                $insertedId = $this->insertTrackedDocumentRow($wpdb, $fileHash, $geminiDocName, basename($filePath));
+                $trackedDisplayName = trim($displayNameOverride) !== '' ? trim($displayNameOverride) : basename($filePath);
+                $insertedId = $this->insertTrackedDocumentRow($wpdb, $fileHash, $geminiDocName, $trackedDisplayName);
 
                 if ($insertedId !== null) {
                     $documentId = $insertedId;

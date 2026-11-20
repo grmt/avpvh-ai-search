@@ -269,6 +269,27 @@ trait SimpleFileListSupportHelpersTrait {
         error_log('geweb-ai-search: SFL nice-name match from ' . $optionName . ' for ' . basename($matchedPath) . ' => ' . $niceName);
     }
 
+    /**
+     * @param array<string,array<string,string>> $targets
+     */
+    public function matchSimpleFileListRecordPath(string $filePathValue, array $targets): ?string {
+        $normalizedValue = wp_normalize_path(ltrim(trim($filePathValue), '/'));
+
+        foreach ($targets as $filePath => $target) {
+            $basename = wp_normalize_path((string) ($target['basename'] ?? basename($filePath)));
+            $relativePath = wp_normalize_path(ltrim((string) ($target['relative_path'] ?? ''), '/'));
+            if (
+                $normalizedValue === $basename
+                || $normalizedValue === $relativePath
+                || str_ends_with($relativePath, '/' . $normalizedValue)
+            ) {
+                return $filePath;
+            }
+        }
+
+        return null;
+    }
+
     private function findModifiedTimestampFromFields(array $stringFields): ?int {
         foreach ($stringFields as $fieldKey => $fieldValue) {
             if (!preg_match('/modified|updated|changed|date|time|timestamp/i', $fieldKey)) {

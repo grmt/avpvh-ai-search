@@ -60,10 +60,12 @@ Workspace AI Search is a spinoff of geweb, expanded into a broader AI search wor
 
 1. Go to **Settings → Workspace AI Search**
 2. Enter your Google Gemini API key
-3. Select the AI model (recommended: `gemini-3.5-flash`)
+3. Select the AI model (`gemini-flash-recommended (3.7)` selects `gemini-3.7-flash`; Google's moving `gemini-flash-latest (3.5)` alias currently selects Gemini 3.5 Flash)
 4. Choose which post types to index
 5. Click **Save Settings** — a Gemini File Search Store will be created automatically
 6. Click **Generate Library** to index all existing published content
+
+For Markdown review and failed-file recovery, see [Reviewing and retrying failed document parsing](docs/failed-document-parsing.md).
 
 ## Customization
 
@@ -76,7 +78,7 @@ add_filter('geweb_aisearch_gemini_system_instruction', function($instruction) {
 
 // Limit available models in settings
 add_filter('geweb_aisearch_gemini_models', function($models) {
-    return ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-2.5-flash', 'gemini-2.5-pro'];
+    return ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.6-flash', 'gemini-3.5-flash'];
 });
 ```
 
@@ -132,6 +134,11 @@ This plugin connects to the **Google Gemini API** to index your content and answ
 This plugin bundles [league/html-to-markdown](https://github.com/thephpleague/html-to-markdown) (MIT License) — used to convert WordPress post HTML to Markdown for AI indexing.
 
 ## Changelog
+
+### 2.1.4.33
+- Updated: Default Gemini model to Google's latest and most capable Flash model, `gemini-3.7-flash`
+- Added: Clear model recommendations and moving-alias guidance in settings
+- Added: `gemini-3.5-flash-lite` for high-volume, lower-cost processing
 
 ### 2.1.3
 - Improved: Modal overlay background opacity

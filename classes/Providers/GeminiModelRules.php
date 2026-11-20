@@ -7,6 +7,9 @@ defined('ABSPATH') || exit;
  * Pure Gemini model-name and provider-error classification rules.
  */
 class GeminiModelRules {
+    /** Google's recommendation for new projects (models page, 2026-11). */
+    public const RECOMMENDED_MODEL = 'gemini-3.8-flash';
+
     /**
      * @param array<int,string> $officialAliases
      * @param callable $isPermanentlyUnavailable Receives normalized model name.
@@ -88,7 +91,8 @@ class GeminiModelRules {
             return true;
         }
 
-        return in_array($normalized, ['gemini-pro', 'gemini-flash', 'gemini-pro-vision'], true);
+        return in_array($normalized, ['gemini-pro', 'gemini-flash', 'gemini-pro-vision'], true)
+            || GeminiModelCatalog::isRetired($normalized);
     }
 
     public static function extractRequestedModelFromUrl(string $url): string {

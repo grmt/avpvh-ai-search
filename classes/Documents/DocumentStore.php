@@ -65,8 +65,41 @@ class DocumentStore {
         ) $charset_collate;";
 
         require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        self::upgradeRefsPrimaryKey();
         dbDelta($sql_docs);
         dbDelta($sql_refs);
+    }
+
+    /**
+     * Older versions keyed the refs table on (post_id, document_id). dbDelta cannot
+     * change an existing primary key: it fails with "Multiple primary key defined",
+     * which under WP_DEBUG_DISPLAY aborts plugin activation. Convert it first.
+     * Existing rows stay unique, because the new key only adds owner_key.
+     */
+    private static function upgradeRefsPrimaryKey(): void {
+        global $wpdb;
+        $primaryKeyColumns = self::getPrimaryKeyColumns(self::$refsTable);
+        if ($primaryKeyColumns === [] || $primaryKeyColumns === ['owner_key', 'post_id', 'document_id']) {
+            return;
+        }
+
+        $hasOwnerKey = (bool) $wpdb->get_var("SHOW COLUMNS FROM " . self::$refsTable . " LIKE 'owner_key'");
+        $addOwnerKey = $hasOwnerKey ? '' : "ADD COLUMN owner_key VARCHAR(191) NOT NULL DEFAULT '' FIRST, ";
+        $wpdb->query("ALTER TABLE " . self::$refsTable . " {$addOwnerKey}DROP PRIMARY KEY, ADD PRIMARY KEY (owner_key, post_id, document_id)");
+    }
+
+    /**
+     * @return array<int,string> Primary key columns in order; empty when the table does not exist.
+     */
+    private static function getPrimaryKeyColumns(string $table): array {
+        global $wpdb;
+        $columns = $wpdb->get_col($wpdb->prepare(
+            "SELECT COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND CONSTRAINT_NAME = 'PRIMARY'
+             ORDER BY ORDINAL_POSITION",
+            $table
+        ));
+        return is_array($columns) ? array_map('strval', $columns) : [];
     }
 
     private static function ensureSchema(): void {
@@ -76,6 +109,13 @@ class DocumentStore {
 
         self::$schemaEnsured = true;
         global $wpdb;
+
+        // On a fresh install the tables do not exist yet; SHOW COLUMNS would then
+        // raise a database error, which breaks plugin activation under WP_DEBUG.
+        if (!self::tableExists($wpdb, self::$documentsTable) || !self::tableExists($wpdb, self::$refsTable)) {
+            self::install();
+            return;
+        }
 
         $docsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$documentsTable . " LIKE 'owner_key'");
         $refsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$refsTable . " LIKE 'owner_key'");
@@ -111,6 +151,11 @@ class DocumentStore {
                 $wpdb->query("ALTER TABLE " . self::$documentsTable . " DROP INDEX `{$legacyIndex}`");
             }
         }
+    }
+
+    private static function tableExists(\wpdb $wpdb, string $table): bool {
+        $found = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($table)));
+        return $found === $table;
     }
 
     /**

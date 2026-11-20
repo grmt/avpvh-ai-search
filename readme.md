@@ -1,20 +1,18 @@
-# Workspace AI Search
+# AV-PvH AI Search
 
 **Keep native WordPress search results, and add optional AI answers powered by Google Gemini.**
 
-![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue?logo=wordpress)
-![PHP](https://img.shields.io/badge/PHP-7.2%2B-777BB4?logo=php)
+![WordPress](https://img.shields.io/badge/WordPress-7.1%2B-blue?logo=wordpress)
+![PHP](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php)
 ![License](https://img.shields.io/badge/License-GPLv2-green)
-![Version](https://img.shields.io/badge/Version-2.1.4.1-orange)
+![Version](https://img.shields.io/badge/Version-3.0.0-orange)
 
 ---
 
-Workspace AI Search adds an AI layer to your existing WordPress search powered by Google Gemini AI. Visitors can keep using the standard WordPress search results page from your theme, including excerpts and surrounding context, and optionally continue their search with AI for a direct, contextual answer with source links.
+AV-PvH AI Search adds an AI layer to your existing WordPress search powered by Google Gemini AI. Visitors can keep using the standard WordPress search results page from your theme, including excerpts and surrounding context, and optionally continue their search with AI for a direct, contextual answer with source links.
 
-Workspace AI Search is a spinoff of geweb, expanded into a broader AI search workspace with chats, prompts, document handling, and source-grounded answers.
+AV-PvH AI Search started as a fork of [Geweb AI Search](https://github.com/mygeweb/geweb-ai-search) by Evgen Gavrilov (GPLv2) and grew into a broader AI search workspace with chats, prompts, document handling, and source-grounded answers. It is not affiliated with or supported by the original author.
 
-**[Official WordPress Plugin Page](https://wordpress.org/plugins/geweb-ai-search/)**
-**[Live Demo](https://aisearch.mygeweb.com/)**
 
 ## Features
 
@@ -37,28 +35,31 @@ Workspace AI Search is a spinoff of geweb, expanded into a broader AI search wor
 
 ## Requirements
 
-- PHP 7.2 or higher (libsodium is bundled with PHP 7.2+)
-- WordPress 6.0 or higher
+- PHP 8.4 or higher
+- WordPress 7.1 or higher
 - Google Gemini API key — free at [aistudio.google.com](https://aistudio.google.com/app/apikey)
 
 ## Installation
 
-### From WordPress.org
-
-1. Go to **Plugins → Add New**
-2. Search for "Workspace AI Search"
-3. Click **Install Now**, then **Activate**
-
 ### Manual
 
-1. Download the ZIP from the [Official WordPress Plugin Page](https://wordpress.org/plugins/geweb-ai-search/)
+1. Download the ZIP from [GitHub releases](https://github.com/grmt/avpvh-ai-search/releases)
 2. Go to **Plugins → Add New → Upload Plugin**
 3. Select the ZIP and click **Install Now**
 4. Activate the plugin
 
+### Switching from Geweb AI Search
+
+This plugin uses the same settings, index, chats and database tables as Geweb AI Search, so nothing has to be migrated.
+
+1. Deactivate Geweb AI Search. Do **not** click "Delete": its uninstaller removes the Gemini API key and the index settings.
+2. Remove the `wp-content/plugins/geweb-ai-search` folder from the server (for example with SFTP or WP-CLI `rm`), not via the Plugins screen.
+3. Install and activate AV-PvH AI Search.
+4. Pages with `[geweb_ai_search]` keep working; new pages use `[avpvh_ai_search]`.
+
 ## Configuration
 
-1. Go to **Settings → Workspace AI Search**
+1. Go to **Settings → AV-PvH AI Search**
 2. Enter your Google Gemini API key
 3. Select the AI model (`gemini-flash-recommended (3.7)` selects `gemini-3.7-flash`; Google's moving `gemini-flash-latest (3.5)` alias currently selects Gemini 3.5 Flash)
 4. Choose which post types to index

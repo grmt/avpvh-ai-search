@@ -1,23 +1,21 @@
-=== Workspace AI Search ===
+=== AV-PvH AI Search ===
 Contributors: grmt
 Tags: search, ai, gemini, artificial intelligence, semantic search
-Requires at least: 6.0
+Requires at least: 7.1
 Tested up to: 6.9
-Requires PHP: 7.2
-Stable tag: 2.1.4.33
+Requires PHP: 8.4
+Stable tag: 3.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
-Text Domain: geweb-ai-search
+Text Domain: avpvh-ai-search
 
 Keep native WordPress search results, and add optional AI answers powered by Google Gemini.
 
 == Description ==
 
-Live demo: https://aisearch.mygeweb.com/
+AV-PvH AI Search adds an AI layer to your existing WordPress search powered by Google Gemini AI. Visitors can keep using the standard WordPress search results page from your theme, including excerpts and surrounding context, and optionally continue their search with AI for a direct, contextual answer with source links.
 
-Workspace AI Search adds an AI layer to your existing WordPress search powered by Google Gemini AI. Visitors can keep using the standard WordPress search results page from your theme, including excerpts and surrounding context, and optionally continue their search with AI for a direct, contextual answer with source links.
-
-Workspace AI Search is a spinoff of geweb, expanded into a broader AI search workspace with chats, prompts, document handling, and source-grounded answers.
+AV-PvH AI Search started as a fork of [Geweb AI Search](https://wordpress.org/plugins/geweb-ai-search/) by Evgen Gavrilov (GPLv2) and grew into a broader AI search workspace with chats, prompts, document handling, and source-grounded answers. It is not affiliated with or supported by the original author.
 
 = Key Features =
 
@@ -61,22 +59,25 @@ By using this plugin you agree to Google's Terms of Service and Privacy Policy. 
 
 == Installation ==
 
-= Automatic Installation =
-
-1. Go to **Plugins → Add New**
-2. Search for "Workspace AI Search"
-3. Click **Install Now**, then **Activate**
-
 = Manual Installation =
 
-1. Download the plugin ZIP file
+1. Download the plugin ZIP file from https://github.com/grmt/avpvh-ai-search/releases
 2. Go to **Plugins → Add New → Upload Plugin**
 3. Select the ZIP file and click **Install Now**
 4. Activate the plugin
 
+= Switching from Geweb AI Search =
+
+This plugin uses the same settings, index, chats and database tables as Geweb AI Search, so nothing has to be migrated.
+
+1. Deactivate Geweb AI Search. Do **not** click "Delete": its uninstaller removes the Gemini API key and the index settings.
+2. Remove the `wp-content/plugins/geweb-ai-search` folder from the server (for example with SFTP or WP-CLI `rm`), not via the Plugins screen.
+3. Install and activate AV-PvH AI Search.
+4. Pages with `[geweb_ai_search]` keep working; new pages use `[avpvh_ai_search]`.
+
 = Configuration =
 
-1. Go to **Settings → Workspace AI Search**
+1. Go to **Settings → AV-PvH AI Search**
 2. Enter your Google Gemini API key — get one free at https://aistudio.google.com/app/apikey
 3. Select the AI model (gemini-flash-recommended (3.7) selects gemini-3.7-flash; Google's moving gemini-flash-latest (3.5) alias currently selects Gemini 3.5 Flash)
 4. Choose which post types to index
@@ -170,10 +171,27 @@ Available filters:
 
 == Changelog ==
 
-= 2.1.4.33 =
-* Updated: Default Gemini model to Google's latest and most capable Flash model, gemini-3.7-flash
-* Added: Clear model recommendations and moving-alias guidance in settings
-* Added: gemini-3.5-flash-lite for high-volume, lower-cost processing
+= 3.0.2 =
+* Added: chat archive (Skype chats as searchable documents) with Meilisearch sync, an indexable-content normalizer, and document/OCR fixes that had only been deployed to kb.rechtspreker.nl from a local copy.
+* Added: dropdown labels show default, recommended (gemini-3.8-flash) and fast, low cost (gemini-3.5-flash-lite); recommended models are listed first.
+* Added: Gemini 4 models (gemini-4-carbon, gemini-4-argon, gemini-4-hydrogen). Model names without -flash or -pro were filtered out before; Gemini 4 models also get the longer Pro timeout.
+* Changed: Google's moving "-latest" aliases (gemini-flash-latest, gemini-pro-latest) are no longer offered in model dropdowns, because Google can change their target model without notice. A site that already uses one keeps working and still sees it.
+* Changed: default model is now gemini-3.8-flash instead of gemini-flash-latest (which pointed to the older 3.5 Flash).
+* Changed: the model table on the General tab lists every available model (including Gemini 4 and 3.8 before their first test), newest first. The "Latest alias" column is replaced by "Note" (Selected, Default, Recommended), and the admin dropdown marks the default and recommended model. A selected -latest alias gets a warning.
+* Added: model table columns Fast, Correct and Value (-- to +++), Price in / out, Released and Deprecated / shutdown, from Google's docs as of 2026-11-18 (GeminiModelCatalog). Deprecated or shut-down models are marked and left out of the dropdown unless selected.
+* Added: model table filter: a search box (e.g. "flash" or "gemini-4") and a "Hide deprecated and shut-down models" checkbox, on by default. The selected model always stays visible.
+
+= 3.0.1 =
+* Fixed: activation failed on sites with refs tables from older versions ("Multiple primary key defined"); the old primary key is now converted first.
+* Fixed: Easy Table of Contents' WP_DEBUG box no longer ends up in indexed content.
+* Improved: model table column "Latest" is now "Latest alias", and an alias whose last test did not name its real model no longer shows itself as its own target.
+
+= 3.0.0 =
+* Renamed from Workspace AI Search (folder and slug geweb-ai-search) to AV-PvH AI Search (avpvh-ai-search), so WordPress no longer offers Geweb AI Search from wordpress.org as an "update" that would replace this plugin.
+* Added: [avpvh_ai_search] shortcode; [geweb_ai_search] keeps working.
+* Added: Update URI header, so WordPress never looks for updates of this plugin on wordpress.org.
+* Added: stays inactive with an admin notice while Geweb AI Search is still active, instead of crashing.
+* Settings, index, chats and database tables keep their names, so switching over needs no migration.
 
 = 2.1.4.31 =
 * Added: Persistent Markdown cache storage, inspection modal, and shared Markdown renderer
@@ -223,7 +241,7 @@ Available filters:
 == Upgrade Notice ==
 
 = 2.0.0 =
-Major rewrite. After upgrading, please go to Settings → Workspace AI Search and click "Generate Library" to re-index your content. Your API key and settings will be preserved.
+Major rewrite. After upgrading, please go to Settings → AV-PvH AI Search and click "Generate Library" to re-index your content. Your API key and settings will be preserved.
 
 == Third-Party Libraries ==
 
@@ -238,4 +256,4 @@ This plugin bundles the following open-source library:
 
 == Support ==
 
-* GitHub: https://github.com/mygeweb/geweb-ai-search
+* GitHub: https://github.com/grmt/avpvh-ai-search

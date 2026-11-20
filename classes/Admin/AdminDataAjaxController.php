@@ -32,7 +32,7 @@ class AdminDataAjaxController {
         $forceRefresh = !empty($_POST['force_refresh']);
         $pluginUpdating = PluginUpdateGuard::isActive();
         if ($pluginUpdating && !$documentStore->hasReferencedDocumentOverviewCache()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Files are temporarily unavailable.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Files are temporarily unavailable.'), 503);
         }
         if ($pluginUpdating) {
             $forceRefresh = false;
@@ -462,7 +462,7 @@ class AdminDataAjaxController {
         $requestedForceRefresh = !empty($_POST['force_refresh']);
         $pluginUpdating = PluginUpdateGuard::isActive();
         if ($pluginUpdating && !$provider->hasStoreOverviewCache()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Gemini Stores are temporarily unavailable.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Gemini Stores are temporarily unavailable.'), 503);
         }
         $shouldForceRefresh = $requestedForceRefresh || $this->shouldForceStoreRefresh($provider);
         if ($pluginUpdating) {
@@ -530,7 +530,7 @@ class AdminDataAjaxController {
         $forceRefresh = !empty($_POST['force_refresh']);
         $pluginUpdating = PluginUpdateGuard::isActive();
         if ($pluginUpdating && !$provider->hasStoreDocumentsCache($storeName)) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Uploaded items are temporarily unavailable.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Uploaded items are temporarily unavailable.'), 503);
         }
         if ($pluginUpdating) {
             $forceRefresh = false;
@@ -614,7 +614,7 @@ class AdminDataAjaxController {
         check_ajax_referer('geweb_ai_search_admin_actions', 'nonce');
 
         if (PluginUpdateGuard::isActive()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Model refresh is temporarily unavailable.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Model refresh is temporarily unavailable.'), 503);
         }
 
         if (!current_user_can('manage_options')) {
@@ -639,7 +639,7 @@ class AdminDataAjaxController {
             return true;
         }));
         $modelHintsBuilder = new AdminPageModelHintsBuilder();
-        $dropdownModels = $modelHintsBuilder->prioritizeModelOptions($dropdownModels);
+        $dropdownModels = GeminiModelRules::withoutLatestAliases($modelHintsBuilder->prioritizeModelOptions($dropdownModels), $selectedModel);
 
         wp_send_json_success([
             'models' => array_values($models),
@@ -647,7 +647,7 @@ class AdminDataAjaxController {
             'selected_model' => $selectedModel,
             'connection_status' => $connectionStatus,
             'model_statuses' => is_array($modelStatuses) ? $modelStatuses : [],
-            'model_option_labels' => $modelHintsBuilder->buildModelOptionLabels($dropdownModels),
+            'model_option_labels' => $modelHintsBuilder->buildModelOptionLabels($dropdownModels, $provider->getDefaultModel($models)),
             'used_cached_models' => !$shouldForceRefresh,
         ]);
     }
@@ -656,7 +656,7 @@ class AdminDataAjaxController {
         check_ajax_referer('geweb_ai_search_admin_actions', 'nonce');
 
         if (PluginUpdateGuard::isActive()) {
-            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('Workspace AI Search is updating. Model tests are temporarily unavailable.'), 503);
+            wp_send_json_error(PluginUpdateGuard::buildJsonErrorPayload('AV-PvH AI Search is updating. Model tests are temporarily unavailable.'), 503);
         }
 
         if (!current_user_can('manage_options')) {

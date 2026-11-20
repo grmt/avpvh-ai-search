@@ -83,7 +83,6 @@ class AdminPageConfigBuilder {
                 'activeTab' => $activeTab,
                 'adminViewCacheState' => AdminViewRevision::ensureCurrentState(),
                 'groupDataRevision' => GroupDataRevision::ensureCurrentRevision(),
-                'inlineStyleHidden' => 'style="display:none;"',
                 'statusColorError' => '#d63638',
                 'statusColorNeutral' => '#646970',
                 'statusColorSuccess' => '#46b450',
@@ -164,7 +163,7 @@ class AdminPageConfigBuilder {
             'hasValidSavedApiKey' => $this->hasValidSavedApiKey(),
             'isGeminiProvider' => $provider instanceof Gemini,
             'latestModelHints' => $modelHintsBuilder->buildLatestModelHints($models),
-            'modelOptionLabels' => $modelHintsBuilder->buildModelOptionLabels($dropdownModels),
+            'modelOptionLabels' => $modelHintsBuilder->buildModelOptionLabels($dropdownModels, $provider->getDefaultModel($models)),
             'modelStatuses' => $modelStatuses,
             'models' => $models,
             'officialLatestAliases' => $modelHintsBuilder->buildOfficialLatestAliases(),
@@ -197,11 +196,11 @@ class AdminPageConfigBuilder {
      * @return array<int,string>
      */
     private function buildDropdownModels(array $models, string $selectedModel, AIProviderInterface $provider): array {
-        return array_values(array_filter($models, function ($model) use ($provider, $selectedModel): bool {
+        return GeminiModelRules::withoutLatestAliases(array_values(array_filter($models, function ($model) use ($provider, $selectedModel): bool {
             return $model === $selectedModel
                 || !$provider instanceof Gemini
                 || !$provider->isDeprecatedModel((string) $model);
-        }));
+        })), $selectedModel);
     }
 
     private function hasValidSavedApiKey(): bool {
@@ -344,12 +343,12 @@ class AdminPageConfigBuilder {
             'geminiStoresHtml' => AdminPageSupport::renderPanelHtml(
                 $providerHasStoreCache,
                 $this->renderGeminiStoresTable,
-                $pluginUpdateGuardActive ? 'Workspace AI Search is updating. Gemini Stores will be available again in a moment.' : 'Loading Gemini stores...'
+                $pluginUpdateGuardActive ? 'AV-PvH AI Search is updating. Gemini Stores will be available again in a moment.' : 'Loading Gemini stores...'
             ),
             'referencedDocumentsHtml' => AdminPageSupport::renderPanelHtml(
                 !empty($cacheContext['hasReferencedDocumentCache']),
                 $this->renderReferencedDocumentsTable,
-                $pluginUpdateGuardActive ? 'Workspace AI Search is updating. Files will be available again in a moment.' : 'Loading referenced documents...'
+                $pluginUpdateGuardActive ? 'AV-PvH AI Search is updating. Files will be available again in a moment.' : 'Loading referenced documents...'
             ),
         ];
     }
@@ -364,7 +363,7 @@ class AdminPageConfigBuilder {
 
     private function buildGeminiStoreDocumentsPanelHtml(AIProviderInterface $provider, bool $providerHasStoreCache, bool $pluginUpdateGuardActive): string {
         if ($pluginUpdateGuardActive && !$providerHasStoreCache) {
-            return '<div id="geweb-gemini-store-documents-panel" data-store-name="" style="margin-top:20px; padding:16px; background:#fff; border:1px solid #dcdcde;"><div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;"><div><strong id="geweb-gemini-store-documents-title">Uploaded Items</strong><div id="geweb-gemini-store-documents-subtitle" class="description" style="margin-top:4px;">Uploaded items in the selected Gemini File Search Store.</div></div><button type="button" class="button" id="geweb-refresh-gemini-store-documents" disabled>Refresh List</button></div><div id="geweb-gemini-store-documents-status" class="description" style="margin-bottom:12px; color:#646970;">Workspace AI Search is updating. Uploaded items will be available again in a moment.</div><p id="geweb-gemini-store-documents-error" class="description" style="margin:0 0 12px; color:#d63638; display:none;"></p><div id="geweb-gemini-store-documents-container"><p style="margin:0;">Workspace AI Search is updating. Uploaded items will be available again in a moment.</p></div></div>';
+            return '<div id="geweb-gemini-store-documents-panel" data-store-name="" style="margin-top:20px; padding:16px; background:#fff; border:1px solid #dcdcde;"><div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;"><div><strong id="geweb-gemini-store-documents-title">Uploaded Items</strong><div id="geweb-gemini-store-documents-subtitle" class="description" style="margin-top:4px;">Uploaded items in the selected Gemini File Search Store.</div></div><button type="button" class="button" id="geweb-refresh-gemini-store-documents" disabled>Refresh List</button></div><div id="geweb-gemini-store-documents-status" class="description" style="margin-bottom:12px; color:#646970;">AV-PvH AI Search is updating. Uploaded items will be available again in a moment.</div><p id="geweb-gemini-store-documents-error" class="description" style="margin:0 0 12px; color:#d63638; display:none;"></p><div id="geweb-gemini-store-documents-container"><p style="margin:0;">AV-PvH AI Search is updating. Uploaded items will be available again in a moment.</p></div></div>';
         }
 
         return AdminPageSupport::renderInitialGeminiStoreDocumentsPanel(

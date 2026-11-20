@@ -6,7 +6,7 @@ defined('ABSPATH') || exit;
 $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
         ?>
         <div class="wrap">
-            <h1>Workspace AI Search</h1>
+            <h1>AV-PvH AI Search</h1>
             <div id="geweb-ai-admin-preload-state" data-needs-preload="<?php echo !empty($adminPanelsNeedPreload) ? '1' : '0'; ?>" hidden></div>
             <div
                 id="geweb-ai-admin-cache-state"
@@ -70,7 +70,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                 <input type="hidden" name="geweb_ai_search_group_revision" id="geweb_ai_search_group_revision" value="<?php echo esc_attr((string) $groupDataRevision); ?>">
                 <?php wp_nonce_field('geweb_ai_search_save_settings'); ?>
 
-                <div class="geweb-settings-tab-panel" data-geweb-tab-panel="general" <?php echo $activeTab === 'general' ? '' : (string) $inlineStyleHidden; ?>>
+                <div class="geweb-settings-tab-panel" data-geweb-tab-panel="general" <?php echo $activeTab === 'general' ? '' : 'style="display:none;"'; ?>>
                 <table class="form-table">
                     <tr>
                         <th><label for="geweb_ai_search_provider">AI Provider:</label></th>
@@ -95,7 +95,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                             </div>
                             <div style="display:flex; align-items:center; gap:8px; max-width:460px;">
                                 <input type="password" id="geweb_api_key" name="geweb_gemini_token" placeholder="<?php echo esc_attr($storeEnabled ? 'API Key is set' : 'Enter API Key'); ?>" class="regular-text" style="flex:1 1 auto;" autocomplete="new-password" autocapitalize="off" autocorrect="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-form-type="other" data-current-key-valid="<?php echo $hasValidSavedApiKey ? '1' : '0'; ?>">
-                                <button type="button" class="button" id="geweb-toggle-api-key-visibility" aria-label="Show API key" aria-pressed="false" title="Show API key" <?php echo (string) $inlineStyleHidden; ?>>
+                                <button type="button" class="button" id="geweb-toggle-api-key-visibility" aria-label="Show API key" aria-pressed="false" title="Show API key" style="display:none;">
                                     <span class="dashicons dashicons-visibility" aria-hidden="true" style="line-height:1.5;"></span>
                                 </button>
                             </div>
@@ -170,10 +170,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                                 <button type="button" class="button" id="geweb-refresh-models-button">Refresh models</button>
                                 <button type="button" class="button" id="geweb-test-selected-model">Test selected model</button>
                             </span>
-                            <p class="description" id="geweb-ai-model-refresh-status" <?php echo (string) $inlineStyleHidden; ?>></p>
-                            <p class="description" style="margin-top:8px; max-width:900px;">
-                                <strong>Model aliases:</strong> <code>gemini-flash-recommended (3.7)</code> selects <code>gemini-3.7-flash</code>. <code>gemini-flash-latest (3.5)</code> currently uses the older Gemini 3.5 Flash model. Use <code>gemini-3.5-flash-lite</code> for high-volume, lower-cost processing.
-                            </p>
+                            <p class="description" id="geweb-ai-model-refresh-status" style="display:none;"></p>
                             <p class="description" style="margin-top:8px;">
                                 Gemini model info:
                                 <a href="<?php echo esc_url((string) $geminiLatestModelUrl); ?>" target="_blank" rel="noopener noreferrer">Google recommendations</a>
@@ -211,7 +208,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                         $maxAttempts = $systemRetries * (1 + $humanRetries);
                         $frontendAjaxTimeoutBufferSeconds = 60;
                         $selectedModel = (string) ($selectedModel ?? '');
-                        $selectedModelIsPro = strpos(strtolower($selectedModel), 'pro') !== false;
+                        $selectedModelIsPro = \Geweb\AISearch\GeminiModelRules::usesProTimeout($selectedModel);
                         $selectedModelTimeoutDefaultSeconds = $selectedModelIsPro
                             ? \Geweb\AISearch\Gemini::DEFAULT_PRO_HTTP_TIMEOUT_SECONDS
                             : \Geweb\AISearch\Gemini::DEFAULT_HTTP_TIMEOUT_SECONDS;
@@ -356,7 +353,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                                 <option value="fullscreen" <?php selected($frontendAiInterface, 'fullscreen'); ?>>Full-screen workspace</option>
                             </select>
                             <p class="description">Choose how the frontend AI search opens. Modal chat keeps a compact conversation window. Full-screen workspace shows conversation history on the left, the chat in the middle, and sources on the right.</p>
-                            <p class="description">Preferred page-based setup: use the automatically created AI Search page or place the shortcode <code>[geweb_ai_search]</code> on a normal WordPress page that should own the menu and layout.</p>
+                            <p class="description">Preferred page-based setup: use the automatically created AI Search page or place the shortcode <code>[avpvh_ai_search]</code> on a normal WordPress page that should own the menu and layout.</p>
                             <p class="description">Supported shortcode attributes: <code>title</code>, <code>search_results="show|hide"</code>, <code>search_results_height="0-100"</code>, <code>manage_link="show|hide"</code>.</p>
                             <?php if ($frontendAiPageId > 0 && $frontendAiPageUrl !== ''): ?>
                                 <p class="description">Current AI Search page: <a href="<?php echo esc_url((string) $frontendAiPageUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html((string) ($frontendAiPageTitle ?: 'AI Search')); ?></a></p>
@@ -502,7 +499,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                 </table>
                 </div>
 
-                <div class="geweb-settings-tab-panel" data-geweb-tab-panel="workspaces" <?php echo $activeTab === 'workspaces' ? '' : (string) $inlineStyleHidden; ?>>
+                <div class="geweb-settings-tab-panel" data-geweb-tab-panel="workspaces" <?php echo $activeTab === 'workspaces' ? '' : 'style="display:none;"'; ?>>
                 <table class="form-table">
                     <tr>
                         <th>Workspace Definitions</th>
@@ -629,7 +626,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                 </table>
                 </div>
 
-                <div class="geweb-settings-tab-panel" data-geweb-tab-panel="prompts" <?php echo $activeTab === 'prompts' ? '' : (string) $inlineStyleHidden; ?>>
+                <div class="geweb-settings-tab-panel" data-geweb-tab-panel="prompts" <?php echo $activeTab === 'prompts' ? '' : 'style="display:none;"'; ?>>
                 <table class="form-table">
                     <tr>
                         <th><label for="geweb_ai_search_custom_prompt">AI Prompt:</label></th>
@@ -653,7 +650,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                                 <input type="text" id="geweb_ai_search_custom_prompt_name" name="geweb_ai_search_custom_prompt_name" value="<?php echo esc_attr((string) $customPromptName); ?>" class="regular-text" placeholder="Optional name for this prompt version">
                             </p>
                             <textarea id="geweb_ai_search_custom_prompt" name="geweb_ai_search_custom_prompt" rows="10" class="large-text code" placeholder="Enter the AI prompt used for Gemini requests."><?php echo esc_textarea((string) $customPrompt); ?></textarea>
-                            <textarea id="geweb_ai_search_default_prompt" <?php echo (string) $inlineStyleHidden; ?> readonly><?php echo esc_textarea((string) $defaultPrompt); ?></textarea>
+                            <textarea id="geweb_ai_search_default_prompt" style="display:none;" readonly><?php echo esc_textarea((string) $defaultPrompt); ?></textarea>
                             <p>
                                 <button type="button" class="button" id="geweb-ai-restore-default-prompt" data-default-prompt="<?php echo esc_attr(base64_encode((string) $defaultPrompt)); ?>">Restore default prompt</button>
                             </p>
@@ -759,7 +756,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                 </p>
             </form>
 
-            <div class="geweb-settings-tab-panel" data-geweb-tab-panel="documents" <?php echo $activeTab === 'documents' ? '' : (string) $inlineStyleHidden; ?>>
+            <div class="geweb-settings-tab-panel" data-geweb-tab-panel="documents" <?php echo $activeTab === 'documents' ? '' : 'style="display:none;"'; ?>>
                 <p class="description" style="margin-top:0; max-width: 900px;">
                     This Files tab shows documents from Simple File List, whether they have been uploaded to the Gemini store, and whether they are referenced from pages or posts.
                 </p>
@@ -801,11 +798,11 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                     </p>
                 <?php endif; ?>
                 <div id="geweb-referenced-documents-container" data-needs-refresh="<?php echo $hasReferencedDocumentCache ? '0' : '1'; ?>" style="margin-top:16px;">
-                    <?php echo $referencedDocumentsHtml; ?>
+                    <?php echo $referencedDocumentsHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- admin panel HTML built by this plugin's own escaped renderers. ?>
                 </div>
             </div>
 
-            <div class="geweb-settings-tab-panel" data-geweb-tab-panel="stores" <?php echo $activeTab === 'stores' ? '' : (string) $inlineStyleHidden; ?>>
+            <div class="geweb-settings-tab-panel" data-geweb-tab-panel="stores" <?php echo $activeTab === 'stores' ? '' : 'style="display:none;"'; ?>>
                 <p class="description" style="margin-top:0; max-width: 900px;">
                     This table shows all Gemini File Search Stores visible to the configured API key, marks the one used by this plugin, and helps spot likely orphaned stores. Select a store to inspect its uploaded items below.
                 </p>
@@ -875,13 +872,13 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                     </p>
                     <p id="geweb-gemini-stores-error" class="description" style="color:<?php echo esc_attr((string) $statusColorError); ?>;<?php echo $providerStoreError !== '' ? '' : ' display:none;'; ?>"><?php echo esc_html((string) $providerStoreError); ?></p>
                     <div id="geweb-gemini-stores-container" data-needs-refresh="<?php echo $providerHasStoreCache ? '0' : '1'; ?>" style="margin-top:16px;">
-                        <?php echo $geminiStoresHtml; ?>
+                        <?php echo $geminiStoresHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- admin panel HTML built by this plugin's own escaped renderers. ?>
                     </div>
-                    <?php echo $geminiStoreDocumentsPanelHtml; ?>
+                    <?php echo $geminiStoreDocumentsPanelHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- admin panel HTML built by this plugin's own escaped renderers. ?>
                 <?php endif; ?>
             </div>
 
-            <div class="geweb-settings-tab-panel" data-geweb-tab-panel="conversations" <?php echo $activeTab === 'conversations' ? '' : (string) $inlineStyleHidden; ?>>
+            <div class="geweb-settings-tab-panel" data-geweb-tab-panel="conversations" <?php echo $activeTab === 'conversations' ? '' : 'style="display:none;"'; ?>>
                 <p class="description" style="margin-top:0; max-width: 900px;">
                     Saved AI chats are grouped by browser-side chat ID and show the latest summary, last usage time, total token usage, and an estimated Gemini text-generation cost when usage metadata is available. Entries appear after a successful AI response, not only when the dialog is closed.
                 </p>
@@ -897,7 +894,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                 </div>
                 <div style="margin-top:16px;">
                     <div id="geweb-conversations-container">
-                        <?php echo $conversationsHtml; ?>
+                        <?php echo $conversationsHtml; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- admin panel HTML built by this plugin's own escaped renderers. ?>
                     </div>
                 </div>
             </div>

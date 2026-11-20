@@ -58,7 +58,7 @@ class WP {
 
         add_action('admin_menu', [$this, 'adminMenu']);
         add_action('admin_post_geweb_save', [$this, 'saveSettings']);
-        add_filter('plugin_action_links_' . plugin_basename(GEWEB_AI_SEARCH_PATH . 'geweb-ai-search.php'), [$this, 'addPluginActionLinks']);
+        add_filter('plugin_action_links_' . plugin_basename(AVPVH_SRCH_PATH . 'avpvh-ai-search.php'), [$this, 'addPluginActionLinks']);
 
         GuestAccess::registerFrontendAjax('geweb_search', [$this, 'ajaxSearch']);
 
@@ -105,6 +105,8 @@ class WP {
         add_action('admin_enqueue_scripts', [$this, 'enqueueAdminScripts']);
         add_action('template_redirect', [$this->frontendAiWorkspaceController, 'maybeRenderFrontendAiPage']);
         add_action('admin_bar_menu', [$this->frontendAiWorkspaceController, 'maybeRemoveFrontendAdminBarSearch'], 999);
+        add_shortcode('avpvh_ai_search', [$this->frontendAiWorkspaceController, 'renderFrontendAiSearchShortcode']);
+        // Old name, kept so existing pages keep working.
         add_shortcode('geweb_ai_search', [$this->frontendAiWorkspaceController, 'renderFrontendAiSearchShortcode']);
 
         add_action('wp_footer', [$this->frontendAiWorkspaceController, 'renderModals']);
@@ -155,8 +157,8 @@ class WP {
      */
     public function adminMenu(): void {
         add_menu_page(
-            'Workspace AI Search',
-            'Workspace AI Search',
+            'AV-PvH AI Search',
+            'AV-PvH AI Search',
             'manage_options',
             'geweb-ai-search',
             [$this, 'renderOptionsPage'],
@@ -259,7 +261,7 @@ class WP {
         check_admin_referer('geweb_ai_search_save_settings');
 
         if (!current_user_can('manage_options')) {
-            wp_die(self::MESSAGE_INSUFFICIENT_PERMISSIONS);
+            wp_die(esc_html(self::MESSAGE_INSUFFICIENT_PERMISSIONS));
         }
 
         try {
@@ -344,14 +346,14 @@ class WP {
     public function enqueueAdminScripts(): void {
         wp_enqueue_style(
             'geweb-ai-search-admin',
-            GEWEB_AI_SEARCH_URL . 'assets/css/admin.css',
+            AVPVH_SRCH_URL . 'assets/css/admin.css',
             [],
             AssetVersion::forRelativePath('assets/css/admin.css')
         );
 
         wp_enqueue_script(
             'geweb-ai-search-markdown-renderer',
-            GEWEB_AI_SEARCH_URL . 'assets/js/markdown-renderer.js',
+            AVPVH_SRCH_URL . 'assets/js/markdown-renderer.js',
             [],
             AssetVersion::forRelativePath('assets/js/markdown-renderer.js'),
             true
@@ -359,7 +361,7 @@ class WP {
 
         wp_enqueue_script(
             'geweb-ai-search-admin-utils',
-            GEWEB_AI_SEARCH_URL . 'assets/js/admin-utils.js',
+            AVPVH_SRCH_URL . 'assets/js/admin-utils.js',
             ['jquery'],
             AssetVersion::forRelativePath('assets/js/admin-utils.js'),
             true
@@ -367,7 +369,7 @@ class WP {
 
         wp_enqueue_script(
             'geweb-ai-search-admin-markdown',
-            GEWEB_AI_SEARCH_URL . 'assets/js/admin-markdown.js',
+            AVPVH_SRCH_URL . 'assets/js/admin-markdown.js',
             ['geweb-ai-search-admin-utils', 'geweb-ai-search-markdown-renderer'],
             AssetVersion::forRelativePath('assets/js/admin-markdown.js'),
             true
@@ -375,7 +377,7 @@ class WP {
 
         wp_enqueue_script(
             'geweb-ai-search-admin',
-            GEWEB_AI_SEARCH_URL . 'assets/admin.js',
+            AVPVH_SRCH_URL . 'assets/admin.js',
             ['jquery', 'geweb-ai-search-markdown-renderer', 'geweb-ai-search-admin-utils', 'geweb-ai-search-admin-markdown'],
             AssetVersion::forRelativePath('assets/admin.js'),
             true

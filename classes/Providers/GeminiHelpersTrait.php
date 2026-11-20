@@ -43,13 +43,14 @@ trait GeminiHelpersTrait {
         "- Do not add a separate Sources, Bronnen, References, or Links section at the end of the answer\n" .
         "- Put source URLs and titles only in the structured sources field, not in the answer body\n" .
         "- Keep the answer body focused on the explanation itself\n\n";
-    private const DEFAULT_MODEL = 'gemini-3.7-flash';
+    private const DEFAULT_MODEL = 'gemini-3.8-flash';
     private const OFFICIAL_LATEST_MODEL_ALIASES = [
         'gemini-flash-latest',
         'gemini-pro-latest',
     ];
     private const LEGACY_DEFAULT_MODELS = [
         'gemini-flash-latest',
+        'gemini-3.7-flash',
         'gemini-3.6-flash',
         'gemini-3.5-flash',
         'gemini-3-flash-preview',
@@ -253,7 +254,7 @@ trait GeminiHelpersTrait {
     }
 
     private function getHttpTimeoutSeconds(string $model = ''): int {
-        $isPro = strpos(strtolower($model), 'pro') !== false;
+        $isPro = GeminiModelRules::usesProTimeout($model);
         $default = $isPro ? self::DEFAULT_PRO_HTTP_TIMEOUT_SECONDS : self::DEFAULT_HTTP_TIMEOUT_SECONDS;
         $optionKey = $isPro ? self::OPTION_TIMEOUT_PRO : self::OPTION_TIMEOUT_FLASH;
         $configuredTimeout = get_option($optionKey);

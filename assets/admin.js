@@ -168,6 +168,35 @@ function sortModelDiagnosticsTable($table, column, sortType) {
 		updateModelDiagnosticsHeaderState($table, nextSpecs);
 }
 
+// Kept across panel refreshes (the panel HTML is replaced after a model test).
+const modelDiagnosticsFilterState = { query: '', hideRetired: true };
+
+function isModelDiagnosticsRowVisible($row, query) {
+		const matchesQuery = !query || String($row.attr('data-filter-text') || '').includes(query);
+		const isHiddenRetired = modelDiagnosticsFilterState.hideRetired && $row.attr('data-model-retired') === '1';
+		return matchesQuery && !isHiddenRetired;
+}
+
+function applyModelDiagnosticsFilter() {
+		const $panel = jQuery('#geweb-model-diagnostics');
+		if (!$panel.length) {
+				return;
+		}
+
+		$panel.find('.geweb-model-filter-search').val(modelDiagnosticsFilterState.query);
+		$panel.find('.geweb-model-filter-hide-retired').prop('checked', modelDiagnosticsFilterState.hideRetired);
+		const query = modelDiagnosticsFilterState.query.trim().toLowerCase();
+		const $rows = $panel.find('.geweb-model-diagnostics-table tbody tr');
+		let visibleCount = 0;
+		$rows.each(function() {
+				const $row = jQuery(this);
+				const isVisible = isModelDiagnosticsRowVisible($row, query);
+				$row.toggle(isVisible);
+				visibleCount += isVisible ? 1 : 0;
+		});
+		$panel.find('.geweb-model-filter-count').text(visibleCount === $rows.length ? '' : `Showing ${visibleCount} of ${$rows.length} models`);
+}
+
 function prepareModelDiagnosticsTableHeaders() {
 		jQuery('.geweb-model-diagnostics-table').each(function() {
 				const $table = jQuery(this);
@@ -1183,6 +1212,7 @@ return;
 				if ($existing.length) {
 						$existing.replaceWith(markup);
 						prepareModelDiagnosticsTableHeaders();
+						applyModelDiagnosticsFilter();
 				}
 		}
 
@@ -3139,6 +3169,17 @@ return;
 				$row.css('opacity', '1');
 			});
 		});
+
+		$(document).on('input', '#geweb-model-diagnostics .geweb-model-filter-search', function() {
+				modelDiagnosticsFilterState.query = String($(this).val() || '');
+				applyModelDiagnosticsFilter();
+		});
+
+		$(document).on('change', '#geweb-model-diagnostics .geweb-model-filter-hide-retired', function() {
+				modelDiagnosticsFilterState.hideRetired = $(this).is(':checked');
+				applyModelDiagnosticsFilter();
+		});
+		applyModelDiagnosticsFilter();
 
 		$(document).on('click', '.geweb-model-diagnostics-table .geweb-sortable-column', function(event) {
 				event.preventDefault();

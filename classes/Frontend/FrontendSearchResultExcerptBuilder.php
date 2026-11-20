@@ -15,7 +15,7 @@ class FrontendSearchResultExcerptBuilder {
         $content = ltrim($content, ". \t\n\r\0\x0B");
         return $content !== ''
             ? wp_trim_words($content, 42)
-            : __('No preview text available for this result.', 'geweb-ai-search');
+            : __('No preview text available for this result.', 'avpvh-ai-search');
     }
 
     private static function getPostContentExcerpt(int $postId): string {

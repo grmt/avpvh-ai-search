@@ -6,6 +6,7 @@
         "validate-chat-splitter": "php scripts/validate_split_skype_chats.php"
     },
     "require": {
+        "php": ">=8.4",
         "league/html-to-markdown": "^5.0"
     },
     "require-dev": {

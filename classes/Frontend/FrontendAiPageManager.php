@@ -57,7 +57,7 @@ class FrontendAiPageManager {
         ]);
 
         foreach ($existingShortcodePages as $page) {
-            if ($page instanceof \WP_Post && has_shortcode((string) $page->post_content, 'geweb_ai_search')) {
+            if ($page instanceof \WP_Post && FrontendAiWorkspaceController::hasSearchShortcode((string) $page->post_content)) {
                 return (int) $page->ID;
             }
         }
@@ -71,7 +71,7 @@ class FrontendAiPageManager {
             'post_status' => 'publish',
             'post_title' => 'AI Search',
             'post_name' => self::FRONTEND_AI_SLUG,
-            'post_content' => '[geweb_ai_search]',
+            'post_content' => '[avpvh_ai_search]',
             'comment_status' => 'closed',
             'ping_status' => 'closed',
         ], true);

@@ -76,20 +76,20 @@ final class ChatArchiveController {
     private function enqueueAssets(): void {
         wp_enqueue_style(
             'geweb-ai-search-chat-archive',
-            GEWEB_AI_SEARCH_URL . 'assets/css/chat-archive.css',
+            AVPVH_SRCH_URL . 'assets/css/chat-archive.css',
             [],
             AssetVersion::forRelativePath('assets/css/chat-archive.css')
         );
         wp_enqueue_script(
             'geweb-ai-search-markdown-renderer',
-            GEWEB_AI_SEARCH_URL . 'assets/js/markdown-renderer.js',
+            AVPVH_SRCH_URL . 'assets/js/markdown-renderer.js',
             [],
             AssetVersion::forRelativePath('assets/js/markdown-renderer.js'),
             true
         );
         wp_enqueue_script(
             'geweb-ai-search-chat-archive',
-            GEWEB_AI_SEARCH_URL . 'assets/js/chat-archive.js',
+            AVPVH_SRCH_URL . 'assets/js/chat-archive.js',
             ['geweb-ai-search-markdown-renderer'],
             AssetVersion::forRelativePath('assets/js/chat-archive.js'),
             true

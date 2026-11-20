@@ -114,16 +114,16 @@
 			return this.escapeHtml(text);
 		},
 
+		// Parsed in an inert DOMParser document: nothing in the text can run or load.
 		decodeHtmlEntities(text) {
-			const parser = document.createElement('textarea');
-			parser.innerHTML = String(text || '');
-			return parser.value;
+			const source = String(text || '').replaceAll(/<\/textarea/gi, '&lt;/textarea');
+			const doc = new globalThis.DOMParser().parseFromString(`<!doctype html><textarea>${source}</textarea>`, 'text/html');
+			return doc.querySelector('textarea')?.value ?? '';
 		},
 
 		stripHtmlAndMarkdown(text) {
-			const htmlContainer = document.createElement('div');
-			htmlContainer.innerHTML = String(text || '');
-			const withoutHtml = String(htmlContainer.textContent || htmlContainer.innerText || '');
+			const doc = new globalThis.DOMParser().parseFromString(String(text || ''), 'text/html');
+			const withoutHtml = String(doc.body?.textContent || '');
 			return withoutHtml
 				.replaceAll(/!\[[^\]]*]\(([^)]+)\)/g, ' ')
 				.replaceAll(/\[([^\]]+)]\(([^)]+)\)/g, '$1')

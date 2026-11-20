@@ -7,22 +7,33 @@ defined('ABSPATH') || exit;
  * Pure Gemini model-name and provider-error classification rules.
  */
 class GeminiModelRules {
-    private const RECOMMENDED_FLASH_MODEL = 'gemini-3.7-flash';
-    private const FLASH_LATEST_ALIAS = 'gemini-flash-latest';
+    /** Google's recommendation for new projects (models page, 2026-11). */
+    public const RECOMMENDED_MODEL = 'gemini-3.8-flash';
+    /** Fastest, cheapest current model, for simple high-volume work. */
+    public const EFFICIENT_MODEL = 'gemini-3.5-flash-lite';
 
     /**
+     * Dropdown labels such as "gemini-3.8-flash (default, recommended)".
+     *
      * @param array<int,string> $models
      * @return array<string,string>
      */
-    public static function buildModelOptionLabels(array $models): array {
+    public static function buildModelOptionLabels(array $models, string $defaultModel = ''): array {
         $labels = [];
-
         foreach ($models as $model) {
             $modelName = trim((string) $model);
-            if ($modelName === self::RECOMMENDED_FLASH_MODEL) {
-                $labels[$modelName] = 'gemini-flash-recommended (3.7) — gemini-3.7-flash';
-            } elseif ($modelName === self::FLASH_LATEST_ALIAS) {
-                $labels[$modelName] = 'gemini-flash-latest (3.5)';
+            $notes = [];
+            if ($defaultModel !== '' && $modelName === $defaultModel) {
+                $notes[] = 'default';
+            }
+            if ($modelName === self::RECOMMENDED_MODEL) {
+                $notes[] = 'recommended';
+            }
+            if ($modelName === self::EFFICIENT_MODEL) {
+                $notes[] = 'fast, low cost';
+            }
+            if ($notes !== []) {
+                $labels[$modelName] = $modelName . ' (' . implode(', ', $notes) . ')';
             }
         }
 
@@ -68,7 +79,32 @@ class GeminiModelRules {
             }
         }
 
-        return preg_match('/^gemini-[0-9][a-z0-9.\-]*-(pro|flash|flash-lite)(?:-|$)/', $normalizedModel) === 1;
+        return self::isChatModelName($normalizedModel);
+    }
+
+    /**
+     * Gemini 2/3 text models end in -pro, -flash or -flash-lite. Gemini 4 and later use
+     * names such as gemini-4-argon, so any gemini-4+ base name counts too.
+     */
+    public static function isChatModelName(string $normalizedModel): bool {
+        return preg_match('/^gemini-\d[a-z0-9.\-]*-(pro|flash|flash-lite)(?:-|$)/', $normalizedModel) === 1
+            || preg_match('/^gemini-[4-9][0-9.]*-[a-z]+(?:-preview)?$/', $normalizedModel) === 1;
+    }
+
+    /**
+     * Pro and Gemini 4+ reasoning models get the longer "Pro" timeout.
+     */
+    public static function usesProTimeout(string $model): bool {
+        $normalizedModel = strtolower(trim($model));
+        return str_contains($normalizedModel, 'pro') || preg_match('/^gemini-[4-9]/', $normalizedModel) === 1;
+    }
+
+    /**
+     * Google's moving "-latest" aliases. They still work when saved, but are not offered
+     * in model lists because their target changes without notice.
+     */
+    public static function isLatestAlias(string $model): bool {
+        return preg_match('/^gemini-[a-z\-]+-latest$/', strtolower(trim($model))) === 1;
     }
 
     public static function isDeprecatedModel(string $model): bool {
@@ -85,7 +121,8 @@ class GeminiModelRules {
             return true;
         }
 
-        return in_array($normalized, ['gemini-pro', 'gemini-flash', 'gemini-pro-vision'], true);
+        return in_array($normalized, ['gemini-pro', 'gemini-flash', 'gemini-pro-vision'], true)
+            || GeminiModelCatalog::isRetired($normalized);
     }
 
     public static function extractRequestedModelFromUrl(string $url): string {
@@ -130,6 +167,16 @@ class GeminiModelRules {
      */
     public static function prependOfficialLatestAliases(array $models, array $officialAliases): array {
         return array_values(array_unique(array_merge($officialAliases, $models)));
+    }
+
+    /**
+     * @param array<int,string> $models
+     * @return array<int,string>
+     */
+    public static function withoutLatestAliases(array $models, string $keep = ''): array {
+        return array_values(array_filter($models, static function ($model) use ($keep): bool {
+            return $model === $keep || !self::isLatestAlias((string) $model);
+        }));
     }
 
     public static function isGemini2Model(string $model): bool {

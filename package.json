@@ -1,0 +1,17 @@
+{
+  "name": "workspace-ai-search",
+  "version": "2.1.4.33",
+  "private": true,
+  "description": "Development tooling for the Workspace AI Search WordPress plugin",
+  "scripts": {
+    "lint": "npm run lint:js",
+    "lint:js": "eslint assets/*.js assets/js/*.js"
+  },
+  "engines": {
+    "node": ">=24",
+    "npm": "^11.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^10.15.0"
+  }
+}

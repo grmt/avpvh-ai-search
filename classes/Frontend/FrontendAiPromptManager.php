@@ -8,10 +8,10 @@ defined('ABSPATH') || exit;
  */
 class FrontendAiPromptManager {
     public function getFrontendAiChatModelConfig(AIProviderInterface $provider): array {
-        $models = array_values(array_filter($provider->getModels(), function ($model): bool {
-            return is_string($model) && $this->supportsFrontendAiChatModel($model);
-        }));
         $selectedModel = $provider->getModel();
+        $models = GeminiModelRules::withoutLatestAliases(array_values(array_filter($provider->getModels(), function ($model): bool {
+            return is_string($model) && $this->supportsFrontendAiChatModel($model);
+        })), $selectedModel);
 
         if ($selectedModel === '' || !in_array($selectedModel, $models, true)) {
             $selectedModel = !empty($models)
@@ -82,9 +82,9 @@ class FrontendAiPromptManager {
     private function resolveFrontendPromptName(): string {
         $customPrompt = trim((string) UserScope::getSharedSearchScopedOption('geweb_aisearch_custom_prompt', ''));
         $customPromptName = trim((string) UserScope::getSharedSearchScopedOption('geweb_aisearch_custom_prompt_name', ''));
-        $name = __('Built-in prompt', 'geweb-ai-search');
+        $name = __('Built-in prompt', 'avpvh-ai-search');
         if ($customPrompt !== '') {
-            $name = $customPromptName !== '' ? $customPromptName : __('Custom prompt', 'geweb-ai-search');
+            $name = $customPromptName !== '' ? $customPromptName : __('Custom prompt', 'avpvh-ai-search');
         }
 
         return $name;
@@ -96,7 +96,7 @@ class FrontendAiPromptManager {
         if ($normalizedModel !== '') {
             $supportsChat = in_array($normalizedModel, ['gemini-flash-latest', 'gemini-pro-latest'], true);
             if (!$supportsChat && !$this->isExcludedFrontendAiModel($normalizedModel)) {
-                $supportsChat = preg_match('/^gemini-\d[a-z0-9.\-]*-(pro|flash|flash-lite)(?:-|$)/', $normalizedModel) === 1;
+                $supportsChat = GeminiModelRules::isChatModelName($normalizedModel);
             }
         }
 

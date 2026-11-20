@@ -40,15 +40,14 @@ class ReferencedDocumentListTable extends \WP_List_Table {
         $typeValue = $this->getTypeFilterValue((string) ($item['mime_type'] ?? ''));
         $referencedInValue = $this->getScopeFilterValue($item);
 
-        $attributes = sprintf(
-            ' data-referenced-document-status="%s" data-referenced-document-type="%s" data-referenced-document-referenced-in="%s" data-referenced-document-search="%s"',
+        printf(
+            '<tr data-referenced-document-status="%s" data-referenced-document-type="%s" data-referenced-document-referenced-in="%s" data-referenced-document-search="%s">',
             esc_attr($statusValue),
             esc_attr($typeValue),
             esc_attr($referencedInValue),
             esc_attr($searchText)
         );
 
-        echo '<tr' . $attributes . '>';
         $this->single_row_columns($item);
         echo '</tr>';
     }
@@ -292,7 +291,7 @@ class ReferencedDocumentListTable extends \WP_List_Table {
         return sprintf(
             '<a href="#" class="geweb-ai-markdown-cache-view" data-cache-kind="document" data-file-hash="%s" title="%s" style="display:inline-block;font-weight:600;color:%s;">%s</a>',
             esc_attr($fileHash),
-            esc_attr__('View cached Markdown for this document', 'geweb-ai-search'),
+            esc_attr__('View cached Markdown for this document', 'avpvh-ai-search'),
             esc_attr(self::COLOR_SUCCESS),
             esc_html(size_format($bytes, 1))
         );

@@ -11,8 +11,8 @@ class AdminPageModelHintsBuilder {
     private const OFFICIAL_GEMINI_PRO_LATEST = 'gemini-pro-latest';
     private const CURRENT_FLASH_LATEST_TARGET = 'gemini-3.5-flash';
     private const CURRENT_PRO_LATEST_TARGET = 'gemini-3.1-pro-preview';
-    private const RECOMMENDED_GENERAL_MODEL = 'gemini-3.7-flash';
-    private const RECOMMENDED_EFFICIENT_MODEL = 'gemini-3.5-flash-lite';
+    private const RECOMMENDED_GENERAL_MODEL = GeminiModelRules::RECOMMENDED_MODEL;
+    private const RECOMMENDED_EFFICIENT_MODEL = GeminiModelRules::EFFICIENT_MODEL;
 
     /**
      * @return array<string,string>
@@ -28,22 +28,8 @@ class AdminPageModelHintsBuilder {
      * @param array<int,string> $models
      * @return array<string,string>
      */
-    public function buildModelOptionLabels(array $models): array {
-        $labels = GeminiModelRules::buildModelOptionLabels($models);
-        $descriptions = [
-            self::RECOMMENDED_EFFICIENT_MODEL => 'Google recommended for high-volume and lower-cost tasks',
-        ];
-
-        foreach ($models as $model) {
-            $modelName = trim((string) $model);
-            if ($modelName === '' || !isset($descriptions[$modelName])) {
-                continue;
-            }
-
-            $labels[$modelName] = $modelName . ' — ' . $descriptions[$modelName];
-        }
-
-        return $labels;
+    public function buildModelOptionLabels(array $models, string $defaultModel = ''): array {
+        return GeminiModelRules::buildModelOptionLabels($models, $defaultModel);
     }
 
     /**

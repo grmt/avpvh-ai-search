@@ -1,3 +1,7 @@
 *.zip
 .fuse_hidden*
 node_modules/
+.chat-review/
+# Personal or site-specific data, never committed (public repo)
+scripts/*.local.json
+docs/*-audit-*.md

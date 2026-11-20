@@ -50,6 +50,9 @@ trait GeminiHelpersTrait {
     ];
     private const LEGACY_DEFAULT_MODELS = [
         'gemini-flash-latest',
+        'gemini-3.7-flash',
+        'gemini-3.6-flash',
+        'gemini-3.5-flash',
         'gemini-3-flash-preview',
         'gemini-2.5-flash',
     ];
@@ -57,6 +60,18 @@ trait GeminiHelpersTrait {
     private const MODEL_SELECTION_MODE_CUSTOM = 'custom';
     private const TRANSIENT_MODELS = 'geweb_aisearch_gemini_models_v3';
     private const MODEL_PRICING_USD_PER_MILLION = [
+        'gemini-3.7-flash' => [
+            'input' => 0.75,
+            'output' => 3.75,
+        ],
+        'gemini-3.6-flash' => [
+            'input' => 0.75,
+            'output' => 3.75,
+        ],
+        'gemini-3.5-flash-lite' => [
+            'input' => 0.30,
+            'output' => 2.50,
+        ],
         'gemini-2.5-flash' => [
             'input' => 0.30,
             'output' => 2.50,
@@ -73,7 +88,7 @@ trait GeminiHelpersTrait {
     private const GENERATE_TIMEOUT_BACKOFF_OPTION = 'geweb_aisearch_gemini_generate_timeout_backoff';
     private const GENERATE_TIMEOUT_BACKOFF_TTL_SECONDS = 3600;
     private const MAX_UPLOAD_FILE_BYTES = 104857600;
-    private const DEFAULT_OCR_MODEL = 'gemini-2.5-flash';
+    private const DEFAULT_OCR_MODEL = 'gemini-3.5-flash-lite';
     private const STALE_FAILED_MODEL_RETENTION_SECONDS = WEEK_IN_SECONDS;
     private const MODEL_TEST_TIMEOUT_SECONDS = 20;
 

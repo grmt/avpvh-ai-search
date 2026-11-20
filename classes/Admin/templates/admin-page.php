@@ -162,12 +162,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                                         <?php endif; ?>
                                         <?php selected($selectedModel, $model); ?>
                                     >
-                                        <?php
-                                        $modelOptionNotes = [];
-                                        if ($model === $defaultModel) { $modelOptionNotes[] = 'default'; }
-                                        if ($model === \Geweb\AISearch\GeminiModelRules::RECOMMENDED_MODEL) { $modelOptionNotes[] = 'recommended'; }
-                                        echo esc_html((string) $model . ($modelOptionNotes ? ' (' . implode(', ', $modelOptionNotes) . ')' : ''));
-                                        ?>
+                                        <?php echo esc_html((string) ($modelOptionLabels[$model] ?? $model)); ?>
                                     </option>
                                 <?php endforeach; ?>
                             </select>
@@ -178,6 +173,8 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                             <p class="description" id="geweb-ai-model-refresh-status" style="display:none;"></p>
                             <p class="description" style="margin-top:8px;">
                                 Gemini model info:
+                                <a href="<?php echo esc_url((string) $geminiLatestModelUrl); ?>" target="_blank" rel="noopener noreferrer">Google recommendations</a>
+                                |
                                 <a href="<?php echo esc_url((string) $geminiChangelogUrl); ?>" target="_blank" rel="noopener noreferrer">Release notes</a>
                                 |
                                 <a href="<?php echo esc_url((string) $geminiDeprecationsUrl); ?>" target="_blank" rel="noopener noreferrer">Deprecations</a>
@@ -637,6 +634,8 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                             <?php if (!empty($isGeminiProvider)): ?>
                                 <p class="description" style="margin-top:0;">
                                     Gemini model info:
+                                    <a href="<?php echo esc_url((string) $geminiLatestModelUrl); ?>" target="_blank" rel="noopener noreferrer">Google recommendations</a>
+                                    |
                                     <a href="<?php echo esc_url((string) $geminiChangelogUrl); ?>" target="_blank" rel="noopener noreferrer">Release notes</a>
                                     |
                                     <a href="<?php echo esc_url((string) $geminiDeprecationsUrl); ?>" target="_blank" rel="noopener noreferrer">Deprecations</a>

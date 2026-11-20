@@ -183,10 +183,11 @@
 		form.submit();
 	}
 
-	function buildModelOption(value, selectedValue, statusEntry) {
+	function buildModelOption(value, selectedValue, statusEntry, label) {
 		const normalizedValue = String(value || '');
 		const isFailedModel = String(statusEntry?.status || '') === 'failed';
-		const option = new Option(normalizedValue, normalizedValue, false, normalizedValue === selectedValue);
+		const optionLabel = String(label || normalizedValue);
+		const option = new Option(optionLabel, normalizedValue, false, normalizedValue === selectedValue);
 		option.dataset.modelStatus = isFailedModel ? 'failed' : 'ok';
 		if (isFailedModel) {
 			option.style.color = '#b32d2e';
@@ -203,7 +204,12 @@
 				return;
 			}
 
-			$select.append(buildModelOption(value, remoteSelected, responseData?.model_statuses?.[value]));
+			$select.append(buildModelOption(
+				value,
+				remoteSelected,
+				responseData?.model_statuses?.[value],
+				responseData?.model_option_labels?.[value]
+			));
 		});
 
 		if (!remoteSelected) {
@@ -221,7 +227,12 @@
 			return;
 		}
 
-		$select.prepend(buildModelOption(remoteSelected, remoteSelected, statusEntry));
+		$select.prepend(buildModelOption(
+			remoteSelected,
+			remoteSelected,
+			statusEntry,
+			responseData?.model_option_labels?.[remoteSelected]
+		));
 	}
 
 	globalThis.GewebAISearchAdminUtils = {

@@ -74,6 +74,12 @@ class ReferencedDocumentOverviewBuilder {
             \Closure::fromCallable([$this, 'buildOverviewEntry'])
         );
 
+        (new ChatDocumentSource())->mergeIntoOverview(
+            $overview,
+            $uploadedByHash,
+            \Closure::fromCallable([$this, 'buildOverviewEntry'])
+        );
+
         foreach ($overview as $hash => $item) {
             $filePath = wp_normalize_path((string) ($item['file_path'] ?? ''));
             if ($filePath === '' || !isset($simpleFileListModifiedMap[$filePath])) {

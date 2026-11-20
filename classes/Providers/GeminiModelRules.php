@@ -9,6 +9,36 @@ defined('ABSPATH') || exit;
 class GeminiModelRules {
     /** Google's recommendation for new projects (models page, 2026-11). */
     public const RECOMMENDED_MODEL = 'gemini-3.8-flash';
+    /** Fastest, cheapest current model, for simple high-volume work. */
+    public const EFFICIENT_MODEL = 'gemini-3.5-flash-lite';
+
+    /**
+     * Dropdown labels such as "gemini-3.8-flash (default, recommended)".
+     *
+     * @param array<int,string> $models
+     * @return array<string,string>
+     */
+    public static function buildModelOptionLabels(array $models, string $defaultModel = ''): array {
+        $labels = [];
+        foreach ($models as $model) {
+            $modelName = trim((string) $model);
+            $notes = [];
+            if ($defaultModel !== '' && $modelName === $defaultModel) {
+                $notes[] = 'default';
+            }
+            if ($modelName === self::RECOMMENDED_MODEL) {
+                $notes[] = 'recommended';
+            }
+            if ($modelName === self::EFFICIENT_MODEL) {
+                $notes[] = 'fast, low cost';
+            }
+            if ($notes !== []) {
+                $labels[$modelName] = $modelName . ' (' . implode(', ', $notes) . ')';
+            }
+        }
+
+        return $labels;
+    }
 
     /**
      * @param array<int,string> $officialAliases

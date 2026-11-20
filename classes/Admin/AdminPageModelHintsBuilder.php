@@ -9,15 +9,59 @@ defined('ABSPATH') || exit;
 class AdminPageModelHintsBuilder {
     private const OFFICIAL_GEMINI_FLASH_LATEST = 'gemini-flash-latest';
     private const OFFICIAL_GEMINI_PRO_LATEST = 'gemini-pro-latest';
+    private const CURRENT_FLASH_LATEST_TARGET = 'gemini-3.5-flash';
+    private const CURRENT_PRO_LATEST_TARGET = 'gemini-3.1-pro-preview';
+    private const RECOMMENDED_GENERAL_MODEL = GeminiModelRules::RECOMMENDED_MODEL;
+    private const RECOMMENDED_EFFICIENT_MODEL = GeminiModelRules::EFFICIENT_MODEL;
 
     /**
      * @return array<string,string>
      */
     public function buildOfficialLatestAliases(): array {
         return [
-            'flash_latest' => self::OFFICIAL_GEMINI_FLASH_LATEST,
-            'pro_latest' => self::OFFICIAL_GEMINI_PRO_LATEST,
+            'flash_latest' => self::CURRENT_FLASH_LATEST_TARGET,
+            'pro_latest' => self::CURRENT_PRO_LATEST_TARGET,
         ];
+    }
+
+    /**
+     * @param array<int,string> $models
+     * @return array<string,string>
+     */
+    public function buildModelOptionLabels(array $models, string $defaultModel = ''): array {
+        return GeminiModelRules::buildModelOptionLabels($models, $defaultModel);
+    }
+
+    /**
+     * @param array<int,string> $models
+     * @return array<int,string>
+     */
+    public function prioritizeModelOptions(array $models): array {
+        $priority = [
+            self::RECOMMENDED_GENERAL_MODEL => 0,
+            self::RECOMMENDED_EFFICIENT_MODEL => 1,
+            self::OFFICIAL_GEMINI_FLASH_LATEST => 3,
+            self::OFFICIAL_GEMINI_PRO_LATEST => 3,
+        ];
+        $indexedModels = [];
+
+        foreach (array_values($models) as $index => $model) {
+            $modelName = (string) $model;
+            $indexedModels[] = [
+                'index' => $index,
+                'model' => $modelName,
+                'priority' => $priority[$modelName] ?? 2,
+            ];
+        }
+
+        usort($indexedModels, static function (array $left, array $right): int {
+            $priorityComparison = (int) $left['priority'] <=> (int) $right['priority'];
+            return $priorityComparison !== 0
+                ? $priorityComparison
+                : (int) $left['index'] <=> (int) $right['index'];
+        });
+
+        return array_column($indexedModels, 'model');
     }
 
     /**

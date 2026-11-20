@@ -332,6 +332,7 @@ class FrontendAiWorkspaceController {
         $frontendModelConfig = ($this->getFrontendAiChatModelConfig)($provider);
         $models = is_array($frontendModelConfig['models'] ?? null) ? $frontendModelConfig['models'] : [];
         $selectedModel = is_string($frontendModelConfig['selected_model'] ?? null) ? $frontendModelConfig['selected_model'] : '';
+        $modelOptionLabels = GeminiModelRules::buildModelOptionLabels($models);
         $promptDescriptors = ($this->getFrontendPromptDescriptors)($provider, $models, $selectedModel);
         $currentPromptDescriptor = $promptDescriptors[$selectedModel] ?? [];
         if (empty($currentPromptDescriptor)) {
@@ -462,7 +463,7 @@ class FrontendAiWorkspaceController {
                                     <div class="geweb-ai-temporary-settings-controls">
                                         <select id="geweb-ai-model-selector" class="geweb-ai-model-selector" disabled>
                                             <?php foreach ($models as $model): ?>
-                                                <option value="<?php echo esc_attr($model); ?>" <?php selected($selectedModel, $model); ?>><?php echo esc_html($model); ?></option>
+                                                <option value="<?php echo esc_attr($model); ?>" <?php selected($selectedModel, $model); ?>><?php echo esc_html($modelOptionLabels[$model] ?? $model); ?></option>
                                             <?php endforeach; ?>
                                         </select>
                                         <button type="button" class="geweb-ai-icon-button geweb-ai-secondary-button geweb-ai-temporary-reset-button geweb-ai-temporary-inline-action geweb-ai-temporary-inline-action--icon" id="geweb-ai-reset-temp-model" aria-label="<?php echo esc_attr__('Use default model', 'avpvh-ai-search'); ?>" title="<?php echo esc_attr__('Use default model', 'avpvh-ai-search'); ?>">

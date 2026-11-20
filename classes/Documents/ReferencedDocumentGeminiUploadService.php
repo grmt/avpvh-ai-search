@@ -145,7 +145,7 @@ class ReferencedDocumentGeminiUploadService {
         } else {
             $frontmatter .= 'OCR text extracted from ' . $documentLabel . ":\n\n";
         }
-        $frontmatter .= $processedText . "\n";
+        $frontmatter .= IndexableContentNormalizer::normalizeMarkdown($processedText) . "\n";
 
         return $frontmatter;
     }

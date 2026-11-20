@@ -79,7 +79,7 @@ This plugin uses the same settings, index, chats and database tables as Geweb AI
 
 1. Go to **Settings → AV-PvH AI Search**
 2. Enter your Google Gemini API key — get one free at https://aistudio.google.com/app/apikey
-3. Select the AI model (recommended: gemini-3.5-flash for most sites)
+3. Select the AI model (gemini-flash-recommended (3.7) selects gemini-3.7-flash; Google's moving gemini-flash-latest (3.5) alias currently selects Gemini 3.5 Flash)
 4. Choose which post types to index
 5. Click **Save Settings** — this will create a Gemini File Search Store automatically
 6. Click **Generate Library** to index all existing published content
@@ -113,7 +113,7 @@ The AI search will return an error. The standard autocomplete search will contin
 
 = Which Gemini models are supported? =
 
-Currently: gemini-3.5-flash, gemini-3.1-pro-preview, gemini-2.5-flash, and gemini-2.5-pro. Gemini 3 models support structured JSON responses with source attribution. Gemini 2.5 models return plain text answers.
+Recommended: the plugin displays gemini-3.7-flash as gemini-flash-recommended (3.7). Google's gemini-flash-latest (3.5) moving alias currently points to Gemini 3.5 Flash. Use gemini-3.5-flash-lite for high-volume, lower-cost processing. Gemini 3.6 Flash remains a stable option for everyday tasks.
 
 == Customization ==
 
@@ -129,7 +129,7 @@ add_filter('geweb_aisearch_gemini_system_instruction', function($instruction) {
 
 // Limit available models in settings
 add_filter('geweb_aisearch_gemini_models', function($models) {
-    return ['gemini-2.5-flash', 'gemini-2.5-pro'];
+    return ['gemini-3.7-flash', 'gemini-3.5-flash-lite', 'gemini-3.6-flash'];
 });
 `
 
@@ -172,6 +172,8 @@ Available filters:
 == Changelog ==
 
 = 3.0.2 =
+* Added: chat archive (Skype chats as searchable documents) with Meilisearch sync, an indexable-content normalizer, and document/OCR fixes that had only been deployed to kb.rechtspreker.nl from a local copy.
+* Added: dropdown labels show default, recommended (gemini-3.8-flash) and fast, low cost (gemini-3.5-flash-lite); recommended models are listed first.
 * Added: Gemini 4 models (gemini-4-carbon, gemini-4-argon, gemini-4-hydrogen). Model names without -flash or -pro were filtered out before; Gemini 4 models also get the longer Pro timeout.
 * Changed: Google's moving "-latest" aliases (gemini-flash-latest, gemini-pro-latest) are no longer offered in model dropdowns, because Google can change their target model without notice. A site that already uses one keeps working and still sees it.
 * Changed: default model is now gemini-3.8-flash instead of gemini-flash-latest (which pointed to the older 3.5 Flash).

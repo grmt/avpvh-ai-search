@@ -4,7 +4,7 @@ Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 7.1
 Tested up to: 6.9
 Requires PHP: 8.4
-Stable tag: 3.0.2
+Stable tag: 3.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: avpvh-ai-search
@@ -171,9 +171,12 @@ Available filters:
 
 == Changelog ==
 
-= 3.0.2 =
+= 3.0.3 =
 * Added: chat archive (Skype chats as searchable documents) with Meilisearch sync, an indexable-content normalizer, and document/OCR fixes that had only been deployed to kb.rechtspreker.nl from a local copy.
 * Added: dropdown labels show default, recommended (gemini-3.8-flash) and fast, low cost (gemini-3.5-flash-lite); recommended models are listed first.
+* Changed: default model gemini-3.8-flash also replaces the earlier local defaults gemini-3.7-flash, 3.6-flash and 3.5-flash.
+
+= 3.0.2 =
 * Added: Gemini 4 models (gemini-4-carbon, gemini-4-argon, gemini-4-hydrogen). Model names without -flash or -pro were filtered out before; Gemini 4 models also get the longer Pro timeout.
 * Changed: Google's moving "-latest" aliases (gemini-flash-latest, gemini-pro-latest) are no longer offered in model dropdowns, because Google can change their target model without notice. A site that already uses one keeps working and still sees it.
 * Changed: default model is now gemini-3.8-flash instead of gemini-flash-latest (which pointed to the older 3.5 Flash).

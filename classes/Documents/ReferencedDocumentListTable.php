@@ -138,8 +138,8 @@ class ReferencedDocumentListTable extends \WP_List_Table {
         $fileHash = isset($item['file_hash']) ? (string) $item['file_hash'] : '';
         $managedBySimpleFileList = !empty($item['managed_by_simple_file_list']) && $filePath !== '';
         $isReferenced = $this->hasReferencedPosts($item);
-        $isMissingFromSimpleFileList = $isReferenced && !$managedBySimpleFileList;
         $isBrokenReference = !empty($item['broken_reference']);
+        $isNotInFileList = $isReferenced && !$managedBySimpleFileList && !$isBrokenReference;
 
         $actions = [];
         if ($url !== '') {
@@ -148,7 +148,8 @@ class ReferencedDocumentListTable extends \WP_List_Table {
 
         if ($managedBySimpleFileList) {
             $support = new SimpleFileListSupport();
-            $actions[] = '<span class="view"><a href="' . esc_url($support->buildSimpleFileListAdminUrl($filePath)) . '">Show in File List</a></span>';
+            $listId = isset($item['simple_file_list_id']) ? (int) $item['simple_file_list_id'] : 1;
+            $actions[] = '<span class="view"><a href="' . esc_url($support->buildSimpleFileListAdminUrl($filePath, $listId)) . '">Show in File List</a></span>';
             if ($fileHash !== '' && !$isReferenced) {
                 $actions[] = '<span class="trash"><a href="#" class="geweb-referenced-document-remove-from-file-list" data-file-hash="' . esc_attr($fileHash) . '">Remove from File List</a></span>';
             }
@@ -158,8 +159,8 @@ class ReferencedDocumentListTable extends \WP_List_Table {
         if ($isBrokenReference) {
             $html .= '<div><small style="color:' . esc_attr(self::COLOR_ERROR) . ';font-weight:600;">Broken link or missing file</small></div>';
         }
-        if ($isMissingFromSimpleFileList) {
-            $html .= '<div><small style="color:' . esc_attr(self::COLOR_ERROR) . ';font-weight:600;">Missing from Simple File List</small></div>';
+        if ($isNotInFileList) {
+            $html .= '<div><small style="color:' . esc_attr(self::COLOR_MUTED) . ';">Not in File List</small></div>';
         }
         $duplicateNotice = (new FileDuplicateHashIndex())->getReferencedFileDuplicateNotice($fileHash, $filePath);
         if ($duplicateNotice !== '') {
@@ -528,8 +529,9 @@ class ReferencedDocumentListTable extends \WP_List_Table {
             <select name="geweb_ai_referenced_doc_referenced_in" id="geweb_ai_referenced_doc_referenced_in">
                 <option value="">Referenced In: Any</option>
                 <option value="referenced" <?php selected($selectedReferencedIn, 'referenced'); ?>>Referenced</option>
+                <option value="not_in_file_list" <?php selected($selectedReferencedIn, 'not_in_file_list'); ?>>Not in File List</option>
                 <option value="not_referenced" <?php selected($selectedReferencedIn, 'not_referenced'); ?>>Not referenced</option>
-                <option value="simple_file_list_only" <?php selected($selectedReferencedIn, 'simple_file_list_only'); ?>>Only in Simple File List</option>
+                <option value="simple_file_list_only" <?php selected($selectedReferencedIn, 'simple_file_list_only'); ?>>Only in File List</option>
             </select>
             <a href="<?php echo esc_url(add_query_arg(['page' => 'geweb-ai-search', 'geweb_tab' => 'documents'], admin_url('admin.php'))); ?>" class="button geweb-reset-referenced-documents-filters" style="margin-left:4px;">Reset</a>
         </div>
@@ -553,9 +555,7 @@ class ReferencedDocumentListTable extends \WP_List_Table {
             return $directOpMap[$operationStatus];
         }
 
-        $isBrokenReference = !empty($item['broken_reference']);
-        $isMissingFromSimpleFileList = $this->hasReferencedPosts($item) && empty($item['managed_by_simple_file_list']);
-        if ($isBrokenReference || $isMissingFromSimpleFileList) {
+        if (!empty($item['broken_reference'])) {
             return 'error';
         }
 

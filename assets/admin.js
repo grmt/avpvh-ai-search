@@ -427,8 +427,14 @@ function rowMatchesReferencedDocumentsFilters($row, filters) {
 			return false;
 		}
 
-		if (filters.referencedIn && String($row.attr('data-referenced-document-referenced-in') || '').trim() !== filters.referencedIn) {
-			return false;
+		if (filters.referencedIn) {
+			const rowScope = String($row.attr('data-referenced-document-referenced-in') || '').trim();
+			const matchesScope = filters.referencedIn === 'referenced'
+				? (rowScope === 'referenced' || rowScope === 'not_in_file_list')
+				: rowScope === filters.referencedIn;
+			if (!matchesScope) {
+				return false;
+			}
 		}
 
 		if (filters.searchTerm) {

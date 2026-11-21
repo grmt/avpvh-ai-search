@@ -758,10 +758,10 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
 
             <div class="geweb-settings-tab-panel" data-geweb-tab-panel="documents" <?php echo $activeTab === 'documents' ? '' : 'style="display:none;"'; ?>>
                 <p class="description" style="margin-top:0; max-width: 900px;">
-                    This Files tab shows documents from Simple File List, whether they have been uploaded to the Gemini store, and whether they are referenced from pages or posts.
+                    This Files tab shows documents from File List, whether they have been uploaded to the Gemini store, and whether they are referenced from pages or posts.
                 </p>
                 <p class="description" style="max-width: 900px;">
-                    Some Simple File List documents are referenced in your site content and some are not. The table helps you see both states, jump to the matching File List item, and remove unreferenced File List entries when needed.
+                    Some File List documents are referenced in your site content and some are not. The table helps you see both states, jump to the matching File List item, and remove unreferenced File List entries when needed.
                 </p>
                 <?php if (!empty($documentsApiStatusLabel)): ?>
                     <p class="description" style="color: <?php echo esc_attr((string) $documentsApiStatusColor); ?>;">

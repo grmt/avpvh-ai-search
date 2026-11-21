@@ -14,15 +14,13 @@ trait ReferencedDocumentListTableHelpersTrait {
         return implode(' ', array_filter(array_map('trim', $parts)));
     }
 
-    private function isIndexedErrorState(string $operationStatus, string $statusColor, bool $isBrokenReference, bool $isMissingFromSimpleFileList): bool {
-        return $isBrokenReference || $isMissingFromSimpleFileList || $statusColor === self::COLOR_ERROR || $operationStatus === 'error';
+    private function isIndexedErrorState(string $operationStatus, string $statusColor, bool $isBrokenReference): bool {
+        return $isBrokenReference || $statusColor === self::COLOR_ERROR || $operationStatus === 'error';
     }
 
     private function getIndexedErrorHtml(array $item): string {
-        $isBrokenReference = !empty($item['broken_reference']);
-        $isMissingFromSimpleFileList = $this->hasReferencedPosts($item) && empty($item['managed_by_simple_file_list']);
-        if ($isBrokenReference || $isMissingFromSimpleFileList) {
-            return '<p style="margin:6px 0 0; color:' . esc_attr(self::COLOR_ERROR) . ';">' . esc_html($isBrokenReference ? 'Broken link or missing file.' : 'Missing from Simple File List.') . '</p>';
+        if (!empty($item['broken_reference'])) {
+            return '<p style="margin:6px 0 0; color:' . esc_attr(self::COLOR_ERROR) . ';">' . esc_html('Broken link or missing file.') . '</p>';
         }
         $operationStatus = (string) sanitize_key((string) ($item['operation_status'] ?? ''));
         $operationError = trim((string) ($item['operation_error'] ?? ''));
@@ -53,7 +51,6 @@ trait ReferencedDocumentListTableHelpersTrait {
         $isUploaded = strpos($status, 'Uploaded') === 0;
         $isOutOfSync = $isUploaded && !empty($item['modified_after_upload']);
         $isBrokenReference = !empty($item['broken_reference']);
-        $isMissingFromSimpleFileList = $this->hasReferencedPosts($item) && empty($item['managed_by_simple_file_list']);
 
         if ($operationStatus === 'uploading') {
             $label = 'Uploading';
@@ -61,7 +58,7 @@ trait ReferencedDocumentListTableHelpersTrait {
         } elseif ($operationStatus === 'excluding') {
             $label = 'Excluding';
             $color = self::COLOR_WARNING;
-        } elseif ($this->isIndexedErrorState($operationStatus, $statusColor, $isBrokenReference, $isMissingFromSimpleFileList)) {
+        } elseif ($this->isIndexedErrorState($operationStatus, $statusColor, $isBrokenReference)) {
             $label = 'Error';
             $color = self::COLOR_ERROR;
         } elseif (!$includeTarget || $operationStatus === 'excluded') {
@@ -135,17 +132,14 @@ trait ReferencedDocumentListTableHelpersTrait {
     }
 
     private function getScopeFilterValue(array $item): string {
-        $referenceCount = isset($item['reference_count']) ? (int) $item['reference_count'] : 0;
+        $isReferenced = $this->hasReferencedPosts($item);
         $managedBySimpleFileList = !empty($item['managed_by_simple_file_list']);
-        $externalReferenceCount = isset($item['external_reference_count']) ? (int) $item['external_reference_count'] : 0;
 
-        if ($referenceCount === 0) {
-            return 'not_referenced';
+        if (!$isReferenced) {
+            return $managedBySimpleFileList ? 'simple_file_list_only' : 'not_referenced';
         }
-        if ($managedBySimpleFileList && $externalReferenceCount === 0) {
-            return 'simple_file_list_only';
-        }
-        return $externalReferenceCount > 0 ? 'referenced_elsewhere' : 'referenced';
+
+        return $managedBySimpleFileList ? 'referenced' : 'not_in_file_list';
     }
 
     private function deriveIndexedFilterFromStatus(array $item): string {

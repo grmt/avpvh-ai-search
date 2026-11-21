@@ -159,7 +159,6 @@ class ReferencedDocumentManager {
     }
 
     public function updateReferencedDocumentNiceNameByHash(string $fileHash, string $niceName): bool {
-        global $wpdb;
         $niceName = trim($niceName);
         if ($fileHash === '' || $niceName === '') {
             return false;
@@ -167,13 +166,10 @@ class ReferencedDocumentManager {
 
         $filePath = $this->resolveNiceNameFilePath($fileHash);
         $rows = $filePath !== ''
-            ? $wpdb->get_results(
-                "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'eeSFL\\_FileList\\_%'",
-                ARRAY_A
-            )
+            ? (new SimpleFileListSupport())->getFileListOptionRows()
             : [];
 
-        if (!is_array($rows) || empty($rows)) {
+        if (empty($rows)) {
             return false;
         }
 

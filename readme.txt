@@ -4,7 +4,7 @@ Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 7.1
 Tested up to: 6.9
 Requires PHP: 8.4
-Stable tag: 3.0.4
+Stable tag: 3.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: avpvh-ai-search
@@ -170,6 +170,10 @@ Available filters:
 * `geweb_aisearch_ai_textarea_placeholder` - AI question textarea placeholder
 
 == Changelog ==
+
+= 3.0.5 =
+* Added: clickable setup checklist banner at the top of AV-PvH AI Search and compact admin notice on other wp-admin pages whenever required configuration is incomplete (API key, Gemini store, frontend user access, post types, and referenced/File List document uploads), with direct links to each setting anchor or tab.
+* Improved: frontend 403 disabled message now names the exact setting and tab ("Share Gemini search configuration with frontend users" in AV-PvH AI Search → General).
 
 = 3.0.4 =
 * Added: AV-PvH File List (`avpvh-filelist`) support (`avpvh_flst_files_*` / `avpvh_flst_settings_*`, `[avpvh_filelist]` shortcode, per-list `FileListDir` path resolution, and *Show in File List* deep links), with legacy Simple File List (`eeSFL_*`) kept as a fallback.

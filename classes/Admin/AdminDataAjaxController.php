@@ -420,7 +420,7 @@ class AdminDataAjaxController {
         $documentManager = new ReferencedDocumentManager($documentStore);
         $success = $documentManager->removeReferencedDocumentFromFileListByHash($fileHash);
         if (!$success) {
-            wp_send_json_error(['message' => 'Only unreferenced File List items can be removed from Simple File List here.'], 500);
+            wp_send_json_error(['message' => 'Only unreferenced File List items can be removed from File List here.'], 500);
         }
 
         $updatedItem = AdminReferencedDocumentAjaxSupport::getUpdatedItem($documentStore, $fileHash);
@@ -428,7 +428,7 @@ class AdminDataAjaxController {
         $table = new ReferencedDocumentListTable();
 
         wp_send_json_success(array_merge([
-            'message' => 'Removed from Simple File List.',
+            'message' => 'Removed from File List.',
             'row_exists' => is_array($updatedItem),
             'row_html' => is_array($updatedItem) ? $table->renderRowHtml($updatedItem) : '',
         ], AdminReferencedDocumentAjaxSupport::buildRevisionPayload()));

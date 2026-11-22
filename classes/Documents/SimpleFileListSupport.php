@@ -4,26 +4,76 @@ namespace Geweb\AISearch;
 defined('ABSPATH') || exit;
 
 /**
- * Simple File List discovery and metadata helpers.
+ * AV-PvH File List (and legacy Simple File List) discovery and metadata helpers.
  */
 class SimpleFileListSupport {
     use SimpleFileListSupportHelpersTrait;
 
     private const SQL_SHOW_TABLES_LIKE = 'SHOW TABLES LIKE %s';
+    private const AVPVH_FILES_OPTION_PREFIX = 'avpvh_flst_files_';
+    private const AVPVH_SETTINGS_OPTION_PREFIX = 'avpvh_flst_settings_';
+    private const AVPVH_DEFAULT_DIR = 'wp-content/uploads/avpvh-filelist/';
+    private const LEGACY_FILES_OPTION_PREFIX = 'eeSFL_FileList_';
+    private const LEGACY_SETTINGS_OPTION_PREFIX = 'eeSFL_Settings_';
+    private const LEGACY_DEFAULT_DIR = 'wp-content/uploads/simple-file-list/';
+
+    /** @var array<string,string> */
+    private array $fileListDirCache = [];
+
+    private ?bool $usingAvpvhFileList = null;
 
     /**
-     * Determine whether a post is rendering a Simple File List shortcode.
+     * Determine whether a post is rendering a File List shortcode.
      */
     public function isSimpleFileListPage(\WP_Post $post): bool {
-        if (!shortcode_exists('eeSFL')) {
-            return false;
+        $content = (string) $post->post_content;
+        if (shortcode_exists('avpvh_filelist') && has_shortcode($content, 'avpvh_filelist')) {
+            return true;
         }
 
-        return has_shortcode((string) $post->post_content, 'eeSFL');
+        return shortcode_exists('eeSFL') && has_shortcode($content, 'eeSFL');
     }
 
     /**
-     * Expand Simple File List references to include additional files in the same list folder.
+     * Determine whether AV-PvH File List is active or has stored file-list options.
+     */
+    public function isUsingAvpvhFileList(): bool {
+        if ($this->usingAvpvhFileList !== null) {
+            return $this->usingAvpvhFileList;
+        }
+
+        if ($this->isAvpvhFileListPluginActive()) {
+            $this->usingAvpvhFileList = true;
+            return true;
+        }
+
+        $this->usingAvpvhFileList = !empty($this->queryFileListOptionRowsByPrefix(self::AVPVH_FILES_OPTION_PREFIX));
+        return $this->usingAvpvhFileList;
+    }
+
+    /**
+     * Read file-list option rows from AV-PvH File List (or legacy Simple File List fallback).
+     *
+     * @return array<int,array<string,mixed>>
+     */
+    public function getFileListOptionRows(): array {
+        if ($this->isAvpvhFileListPluginActive()) {
+            $this->usingAvpvhFileList = true;
+            return $this->queryFileListOptionRowsByPrefix(self::AVPVH_FILES_OPTION_PREFIX);
+        }
+
+        $avpvhRows = $this->queryFileListOptionRowsByPrefix(self::AVPVH_FILES_OPTION_PREFIX);
+        if (!empty($avpvhRows)) {
+            $this->usingAvpvhFileList = true;
+            return $avpvhRows;
+        }
+
+        $this->usingAvpvhFileList = false;
+        return $this->queryFileListOptionRowsByPrefix(self::LEGACY_FILES_OPTION_PREFIX);
+    }
+
+    /**
+     * Expand File List references to include additional files in the same list folder.
      *
      * @param array<int,array<string,string>> $references
      * @return array<int,array<string,string>>
@@ -56,47 +106,7 @@ class SimpleFileListSupport {
     }
 
     /**
-     * @param array<string,string> $niceNameMap
-     * @param array<string,array<string,string>> $expanded
-     * @param array<string,mixed> $data
-     */
-    private function expandDirectoryFile(string $filePath, array $data, array $niceNameMap, array &$expanded): void {
-        $baseName = basename($filePath);
-        $dirUrl = isset($data['dir_url']) ? (string) $data['dir_url'] : '';
-        $fileUrl = $dirUrl !== '' ? $dirUrl . '/' . rawurlencode($baseName) : '';
-        if ($fileUrl === '') {
-            return;
-        }
-        $niceName = $niceNameMap[$filePath] ?? $this->prettifyFileName($baseName);
-        if (isset($expanded[$filePath])) {
-            if ($niceName !== '') {
-                $expanded[$filePath]['display_name'] = $niceName;
-            }
-            return;
-        }
-        $expanded[$filePath] = ['file_path' => $filePath, 'file_url' => $fileUrl, 'display_name' => $niceName];
-    }
-
-    /**
-     * @param array<string,string> $reference
-     * @param array<string,array<string,string>> $expanded
-     * @param array<string,array<string,string>> $directories
-     */
-    private function collectReferenceForExpansion(array $reference, array &$expanded, array &$directories): void {
-        $filePath = isset($reference['file_path']) ? (string) $reference['file_path'] : '';
-        $fileUrl = isset($reference['file_url']) ? (string) $reference['file_url'] : '';
-        if ($filePath === '' || $fileUrl === '' || !is_readable($filePath)) {
-            return;
-        }
-        $expanded[$filePath] = $reference;
-        $directory = wp_normalize_path((string) dirname($filePath));
-        if ($directory !== '') {
-            $directories[$directory] = ['dir_url' => untrailingslashit((string) dirname($fileUrl))];
-        }
-    }
-
-    /**
-     * Merge Simple File List database entries so SFL-only files appear even without website references.
+     * Merge File List database entries so list-only files appear even without website references.
      *
      * @param array<string,array<string,mixed>> $overview
      * @param array<string,array<string,mixed>> $uploadedByHash
@@ -111,45 +121,14 @@ class SimpleFileListSupport {
     }
 
     /**
-     * @param array<string,string> $entry
-     * @param array<string,array<string,mixed>> $overview
-     * @param array<string,array<string,mixed>> $uploadedByHash
-     */
-    private function mergeEntryIntoOverview(array $entry, array &$overview, array $uploadedByHash, callable $buildOverviewEntry): void {
-        $filePath = isset($entry['file_path']) ? (string) $entry['file_path'] : '';
-        $fileUrl = isset($entry['file_url']) ? (string) $entry['file_url'] : '';
-        if ($filePath === '' || $fileUrl === '' || !is_readable($filePath)) {
-            return;
-        }
-        $hash = hash_file('sha256', $filePath);
-        if (!$hash) {
-            return;
-        }
-        $displayName = isset($entry['display_name']) ? trim((string) $entry['display_name']) : basename($filePath);
-        if (isset($overview[$hash])) {
-            $overview[$hash]['managed_by_simple_file_list'] = true;
-            if ($displayName !== '' && (empty($overview[$hash]['nice_name']) || $overview[$hash]['nice_name'] === basename($filePath))) {
-                $overview[$hash]['nice_name'] = $displayName;
-            }
-            return;
-        }
-        $overview[$hash] = $buildOverviewEntry($hash, $filePath, $fileUrl, $displayName, $uploadedByHash[$hash] ?? null, true);
-    }
-
-    /**
-     * Read Simple File List file entries directly from eeSFL_FileList_* options.
+     * Read File List entries from avpvh_flst_files_* (or legacy eeSFL_FileList_*) options.
      *
-     * @return array<int,array<string,string>>
+     * @return array<int,array<string,mixed>>
      */
     public function getSimpleFileListEntries(): array {
-        global $wpdb;
-
-        $rows = $wpdb->get_results(
-            "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'eeSFL\\_FileList\\_%'",
-            ARRAY_A
-        );
-        if (!is_array($rows)) {
-            error_log('geweb-ai-search: SFL entry lookup found no eeSFL_FileList_* option rows.');
+        $rows = $this->getFileListOptionRows();
+        if (empty($rows)) {
+            error_log('geweb-ai-search: File List entry lookup found no file-list option rows.');
             return [];
         }
 
@@ -158,40 +137,30 @@ class SimpleFileListSupport {
             $this->processSimpleFileListEntryRow($row, $entries);
         }
 
-        error_log('geweb-ai-search: SFL entry lookup resolved ' . count($entries) . ' file(s).');
+        error_log('geweb-ai-search: File List entry lookup resolved ' . count($entries) . ' file(s).');
 
         return array_values($entries);
     }
 
-    /**
-     * @param array<string,mixed> $row
-     * @param array<string,array<string,string>> $entries
-     */
-    private function processSimpleFileListEntryRow(array $row, array &$entries): void {
-        if (!is_array($row) || !isset($row['option_value'])) {
-            return;
-        }
-        $optionName = isset($row['option_name']) ? (string) $row['option_name'] : 'unknown-option';
-        $value = maybe_unserialize($row['option_value']);
-        if (!is_array($value)) {
-            error_log('geweb-ai-search: SFL option ' . $optionName . ' did not unserialize to an array.');
-            return;
-        }
-        foreach ($value as $record) {
-            if (!is_array($record)) {
-                continue;
-            }
-            $entry = $this->buildEntryFromRecord($record);
-            if ($entry !== null) {
-                $entries[$entry['file_path']] = $entry;
-            }
-        }
-    }
-
-    public function buildSimpleFileListAdminUrl(string $filePath): string {
+    public function buildSimpleFileListAdminUrl(string $filePath, int $listId = 1): string {
         $searchTerm = basename(wp_normalize_path($filePath));
-        $baseUrl = admin_url('admin.php?page=ee-simple-file-list');
+        $listId = max(1, $listId);
 
+        if ($this->isUsingAvpvhFileList()) {
+            $slug = defined('AVPVH_FLST_SLUG') ? (string) AVPVH_FLST_SLUG : 'avpvh-filelist';
+            $args = [
+                'page' => $slug,
+                'tab' => 'list',
+                'eeListID' => $listId,
+            ];
+            if ($searchTerm !== '') {
+                $args['sfl_search_' . $listId] = $searchTerm;
+            }
+
+            return add_query_arg($args, admin_url('admin.php'));
+        }
+
+        $baseUrl = admin_url('admin.php?page=ee-simple-file-list');
         if ($searchTerm === '') {
             return $baseUrl;
         }
@@ -203,8 +172,6 @@ class SimpleFileListSupport {
     }
 
     public function removeSimpleFileListEntryByPath(string $filePath): bool {
-        global $wpdb;
-
         $normalizedPath = wp_normalize_path($filePath);
         $targets = $normalizedPath !== '' && is_readable($normalizedPath)
             ? $this->buildSimpleFileListTargets([$normalizedPath])
@@ -213,11 +180,8 @@ class SimpleFileListSupport {
             return false;
         }
 
-        $rows = $wpdb->get_results(
-            "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'eeSFL\\_FileList\\_%'",
-            ARRAY_A
-        );
-        if (!is_array($rows) || empty($rows)) {
+        $rows = $this->getFileListOptionRows();
+        if (empty($rows)) {
             return false;
         }
 
@@ -243,17 +207,11 @@ class SimpleFileListSupport {
 
         $niceNames = $this->getSimpleFileListNiceNamesFromFileListOptions($targets);
 
-        $optionRows = $wpdb->get_results(
-            "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'eeSFL%' OR option_name LIKE '%simple_file_list%'",
-            ARRAY_A
-        );
-        if (is_array($optionRows)) {
-            foreach ($optionRows as $row) {
-                if (!is_array($row) || !isset($row['option_value'])) {
-                    continue;
-                }
-                $this->scanSimpleFileListMetadata(maybe_unserialize($row['option_value']), $targets, $niceNames);
+        foreach ($this->getMetadataOptionRows() as $row) {
+            if (!is_array($row) || !isset($row['option_value'])) {
+                continue;
             }
+            $this->scanSimpleFileListMetadata(maybe_unserialize($row['option_value']), $targets, $niceNames);
         }
 
         foreach ($this->getSflCandidateTableNames() as $tableName) {
@@ -282,17 +240,11 @@ class SimpleFileListSupport {
 
         $modifiedMap = [];
 
-        $optionRows = $wpdb->get_results(
-            "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'eeSFL%' OR option_name LIKE '%simple_file_list%'",
-            ARRAY_A
-        );
-        if (is_array($optionRows)) {
-            foreach ($optionRows as $row) {
-                if (!is_array($row) || !isset($row['option_value'])) {
-                    continue;
-                }
-                $this->scanSimpleFileListModifiedMetadata(maybe_unserialize($row['option_value']), $targets, $modifiedMap);
+        foreach ($this->getMetadataOptionRows() as $row) {
+            if (!is_array($row) || !isset($row['option_value'])) {
+                continue;
             }
+            $this->scanSimpleFileListModifiedMetadata(maybe_unserialize($row['option_value']), $targets, $modifiedMap);
         }
 
         foreach ($this->getSflCandidateTableNames() as $tableName) {
@@ -312,24 +264,19 @@ class SimpleFileListSupport {
      * @return array<string,string>
      */
     public function getSimpleFileListNiceNamesFromFileListOptions(array $targets): array {
-        global $wpdb;
-
-        $rows = $wpdb->get_results(
-            "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'eeSFL\\_FileList\\_%'",
-            ARRAY_A
-        );
-        if (!is_array($rows)) {
-            error_log('geweb-ai-search: SFL nice-name lookup found no eeSFL_FileList_* option rows.');
+        $rows = $this->getFileListOptionRows();
+        if (empty($rows)) {
+            error_log('geweb-ai-search: File List nice-name lookup found no file-list option rows.');
             return [];
         }
 
-        error_log('geweb-ai-search: SFL nice-name lookup scanning ' . count($rows) . ' eeSFL_FileList_* option row(s) for ' . count($targets) . ' target file(s).');
+        error_log('geweb-ai-search: File List nice-name lookup scanning ' . count($rows) . ' option row(s) for ' . count($targets) . ' target file(s).');
         $niceNames = [];
         foreach ($rows as $row) {
             $this->processNiceNameFileListRow($row, $targets, $niceNames);
         }
 
-        error_log('geweb-ai-search: SFL nice-name lookup resolved ' . count($niceNames) . ' file(s).');
+        error_log('geweb-ai-search: File List nice-name lookup resolved ' . count($niceNames) . ' file(s).');
         return $niceNames;
     }
 

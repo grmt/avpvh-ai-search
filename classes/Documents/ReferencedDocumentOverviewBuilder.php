@@ -12,8 +12,8 @@ class ReferencedDocumentOverviewBuilder {
     private const STATUS_UPLOADED = 'Uploaded';
     private const STATUS_UPLOADED_NOT_REFERENCED = 'Uploaded, not referenced';
     private const STATUS_UPLOADS_DISABLED = 'Uploads disabled';
-    private const STATUS_ONLY_IN_SIMPLE_FILE_LIST = 'Only in Simple File List';
-    private const STATUS_UPLOADED_ONLY_IN_SIMPLE_FILE_LIST = 'Uploaded, only in Simple File List';
+    private const STATUS_ONLY_IN_SIMPLE_FILE_LIST = 'Only in File List';
+    private const STATUS_UPLOADED_ONLY_IN_SIMPLE_FILE_LIST = 'Uploaded, only in File List';
     private const STATUS_REFERENCED_BROKEN = 'Referenced on site, but file is missing';
     private const COLOR_WARNING = '#996800';
     private const COLOR_SUCCESS = '#46b450';
@@ -326,6 +326,7 @@ class ReferencedDocumentOverviewBuilder {
             'reference_count' => 0,
             'external_reference_count' => 0,
             'managed_by_simple_file_list' => false,
+            'simple_file_list_id' => 0,
             'simple_file_list_modified_at' => 0,
             'last_modified' => 0,
             'modified_after_upload' => false,
@@ -358,6 +359,7 @@ class ReferencedDocumentOverviewBuilder {
             'reference_count' => 0,
             'external_reference_count' => 0,
             'managed_by_simple_file_list' => $managedBySimpleFileList,
+            'simple_file_list_id' => 0,
             'broken_reference' => $isBrokenReference,
             'simple_file_list_modified_at' => 0,
             'last_modified' => 0,

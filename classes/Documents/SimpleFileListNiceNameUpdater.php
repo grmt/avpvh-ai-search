@@ -24,9 +24,10 @@ class SimpleFileListNiceNameUpdater {
             return null;
         }
 
+        $fileListDir = $this->simpleFileListSupport->resolveFileListDirForOption((string) $row['option_name']);
         $updated = false;
         foreach ($value as $index => $record) {
-            if (!$this->recordMatchesPath($record, $filePath)) {
+            if (!$this->recordMatchesPath($record, $filePath, $fileListDir)) {
                 continue;
             }
 
@@ -40,7 +41,7 @@ class SimpleFileListNiceNameUpdater {
     /**
      * @param mixed $record
      */
-    private function recordMatchesPath($record, string $filePath): bool {
+    private function recordMatchesPath($record, string $filePath, string $fileListDir = ''): bool {
         if (!is_array($record)) {
             return false;
         }
@@ -50,7 +51,7 @@ class SimpleFileListNiceNameUpdater {
             return false;
         }
 
-        $resolved = $this->simpleFileListSupport->resolveSimpleFileListRecordPath($filePathValue);
+        $resolved = $this->simpleFileListSupport->resolveSimpleFileListRecordPath($filePathValue, $fileListDir);
         return is_array($resolved) && (($resolved['file_path'] ?? '') === $filePath);
     }
 }

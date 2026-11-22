@@ -1,6 +1,7 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
     "scripts": {
+        "test": "phpunit",
         "validate-gemini-fallback-models": "php scripts/validate_gemini_fallback_models.php",
         "validate-indexable-content": "php scripts/validate_indexable_content_normalization.php",
         "validate-chat-splitter": "php scripts/validate_split_skype_chats.php"
@@ -10,6 +11,7 @@
         "league/html-to-markdown": "^5.0"
     },
     "require-dev": {
-        "php-stubs/wordpress-stubs": "^6.9"
+        "php-stubs/wordpress-stubs": "^6.9",
+        "phpunit/phpunit": "^11.5"
     }
 }

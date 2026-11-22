@@ -13,6 +13,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   ci:
@@ -20,6 +21,8 @@ jobs:
     uses: ./.github/workflows/CI.yml
     permissions:
       contents: read
+      id-token: write
+    secrets: inherit
 
   release:
     name: Build & Publish Plugin ZIP

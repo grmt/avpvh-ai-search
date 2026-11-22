@@ -55,6 +55,7 @@ class WP {
         $adminDataAjaxController = new AdminDataAjaxController($this->adminPageSections);
 
         StoreSiteBinding::registerHooks();
+        AdminSetupChecklist::registerHooks();
 
         add_action('admin_menu', [$this, 'adminMenu']);
         add_action('admin_post_geweb_save', [$this, 'saveSettings']);

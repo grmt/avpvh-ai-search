@@ -21,6 +21,9 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
             <?php if (!empty($pluginUpdateGuardActive)): ?>
                 <div class="notice notice-warning"><p><?php echo esc_html((string) $pluginUpdateGuardMessage); ?></p></div>
             <?php endif; ?>
+            <?php if (!empty($setupChecklistItems) && is_array($setupChecklistItems)): ?>
+                <?php AdminSetupChecklist::renderSettingsBanner($setupChecklistItems); ?>
+            <?php endif; ?>
             <?php if (!empty($workspaceSelectorOptions)): ?>
                 <div style="margin:0 0 16px; padding:12px; background:#fff; border:1px solid #dcdcde; max-width:720px;">
                     <label for="geweb-workspace-scope-selector"><strong>Configuration workspace</strong></label><br>
@@ -86,7 +89,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr id="geweb-setting-api-key">
                         <th><label for="geweb_api_key">API Key:</label></th>
                         <td>
                             <div style="position:absolute; left:-9999px; top:auto; width:1px; height:1px; overflow:hidden;" aria-hidden="true">
@@ -358,7 +361,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                             <?php if ($frontendAiPageId > 0 && $frontendAiPageUrl !== ''): ?>
                                 <p class="description">Current AI Search page: <a href="<?php echo esc_url((string) $frontendAiPageUrl); ?>" target="_blank" rel="noopener noreferrer"><?php echo esc_html((string) ($frontendAiPageTitle ?: 'AI Search')); ?></a></p>
                             <?php endif; ?>
-                            <p style="margin-top:12px;">
+                            <p id="geweb-setting-frontend-sharing" style="margin-top:12px;">
                                 <label for="geweb_ai_search_share_gemini_config_with_frontend" style="display:inline-flex; align-items:flex-start; gap:8px;">
                                     <input type="checkbox" id="geweb_ai_search_share_gemini_config_with_frontend" name="geweb_ai_search_share_gemini_config_with_frontend" value="1" <?php checked(!empty($shareGeminiConfigWithFrontend)); ?>>
                                     <span>
@@ -385,7 +388,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                     </td>
                 </tr>
 
-                    <tr>
+                    <tr id="geweb-setting-post-types">
                         <th>Select Post Types for AI Search:</th>
                         <td>
                             <?php foreach ($allPostTypes as $postType): ?>
@@ -399,7 +402,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr id="geweb-setting-referenced-documents">
                         <th><label for="geweb_ai_search_include_referenced_documents">Referenced Documents:</label></th>
                         <td>
                             <label for="geweb_ai_search_include_referenced_documents">
@@ -421,7 +424,7 @@ $fieldHelper = new \Geweb\AISearch\AdminSettingFieldHelper();
                         </td>
                     </tr>
 
-                    <tr>
+                    <tr id="geweb-setting-document-ai">
                         <th><label for="geweb_ai_search_document_ai_project_id">Document AI OCR:</label></th>
                         <td>
                             <p>

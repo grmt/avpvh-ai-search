@@ -71,7 +71,7 @@ class AdminPageConfigBuilder {
         $panelContext = $this->buildPanelContext($provider, $cacheContext, $guardContext);
         $workspaceContext = $this->buildWorkspaceContext();
 
-        return array_merge(
+        $result = array_merge(
             $providerContext,
             $settingsContext,
             $cacheContext,
@@ -90,6 +90,9 @@ class AdminPageConfigBuilder {
                 'adminPanelsNeedPreload' => $this->adminPanelsNeedPreload($activeTab, $cacheContext, $guardContext),
             ]
         );
+        $result['setupChecklistItems'] = AdminSetupChecklist::buildFromContext($result);
+
+        return $result;
     }
 
     /**

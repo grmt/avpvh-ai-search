@@ -3,7 +3,7 @@
 Plugin Name: AV-PvH AI Search
 Plugin URI: https://github.com/grmt/avpvh-ai-search
 Description: AI-powered search workspace for WordPress using Google Gemini. Smart answers, source links, chats, prompts, and documents in one place. Based on Geweb AI Search by Evgen Gavrilov.
-Version: 3.0.3
+Version: 3.0.4
 Author: grmt
 Author URI: https://github.com/grmt
 License: GPL2
@@ -42,7 +42,7 @@ unset($avpvh_srch_active_plugins);
 
 // Plugin version
 if (!defined('AVPVH_SRCH_VERSION')) {
-    define('AVPVH_SRCH_VERSION', '3.0.3');
+    define('AVPVH_SRCH_VERSION', '3.0.4');
 }
 
 // Plugin directory path

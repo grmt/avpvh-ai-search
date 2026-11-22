@@ -96,7 +96,12 @@ final class ChatArchiveRepository {
         if (is_array($manifest)) {
             return $manifest;
         }
-        $json = file_get_contents($this->getRoot() . '/manifest.json');
+        $manifestPath = $this->getRoot() . '/manifest.json';
+        if (!is_file($manifestPath) || !is_readable($manifestPath)) {
+            $manifest = [];
+            return $manifest;
+        }
+        $json = file_get_contents($manifestPath);
         $decoded = is_string($json) ? json_decode($json, true) : null;
         $manifest = is_array($decoded) ? $decoded : [];
         return $manifest;

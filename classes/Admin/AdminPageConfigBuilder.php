@@ -335,7 +335,7 @@ class AdminPageConfigBuilder {
     private function buildPanelContext(AIProviderInterface $provider, array $cacheContext, array $guardContext): array {
         $providerHasStoreCache = !empty($cacheContext['providerHasStoreCache']);
         $pluginUpdateGuardActive = !empty($guardContext['pluginUpdateGuardActive']);
-        $documentsApiStatus = $this->buildDocumentsApiStatus();
+        $documentsApiStatus = $this->buildDocumentsApiStatus($provider);
 
         return [
             'conversationsHtml' => AdminPageSupport::captureHtml($this->renderConversationsTable),
@@ -359,8 +359,8 @@ class AdminPageConfigBuilder {
     /**
      * @return array{color:string,label:string,message:string}
      */
-    private function buildDocumentsApiStatus(): array {
-        $connectionStatus = get_option('geweb_aisearch_connection_status', []);
+    private function buildDocumentsApiStatus(AIProviderInterface $provider): array {
+        $connectionStatus = $provider->getConnectionStatus();
         return AdminPageSupport::buildApiStatusDisplay($connectionStatus, '#46b450', '#646970', '#d63638');
     }
 

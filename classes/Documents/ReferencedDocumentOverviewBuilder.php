@@ -41,7 +41,7 @@ class ReferencedDocumentOverviewBuilder {
 
         $this->uploadsEnabled = get_option('geweb_aisearch_include_referenced_documents', '0') === '1';
         $postTypes = $this->getPostTypesForReferencedDocumentOverview();
-        $connectionStatus = get_option(self::OPTION_CONNECTION_STATUS, []);
+        $connectionStatus = UserScope::getWorkspaceConfigOption(self::OPTION_CONNECTION_STATUS, []);
         $this->connectionState = is_array($connectionStatus) ? (string) ($connectionStatus['status'] ?? '') : '';
         $uploadedByHash = $this->indexUploadedDocumentsByHash();
 

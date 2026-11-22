@@ -4,7 +4,7 @@ Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 7.1
 Tested up to: 6.9
 Requires PHP: 8.4
-Stable tag: 3.0.5
+Stable tag: 3.0.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: avpvh-ai-search
@@ -170,6 +170,10 @@ Available filters:
 * `geweb_aisearch_ai_textarea_placeholder` - AI question textarea placeholder
 
 == Changelog ==
+
+= 3.0.6 =
+* Fixed: the Files tab now reads the workspace-scoped Gemini API connection status instead of the legacy unscoped option, eliminating false "API key status: Missing" banners when a valid workspace API key is saved.
+* Fixed: guarded missing chat archive `manifest.json` in `ChatArchiveRepository` to avoid PHP warnings on sites without a chat archive.
 
 = 3.0.5 =
 * Added: clickable setup checklist banner at the top of AV-PvH AI Search and compact admin notice on other wp-admin pages whenever required configuration is incomplete (API key, Gemini store, frontend user access, post types, and referenced/File List document uploads), with direct links to each setting anchor or tab.

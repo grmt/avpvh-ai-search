@@ -4,7 +4,7 @@ Tags: search, ai, gemini, artificial intelligence, semantic search
 Requires at least: 7.1
 Tested up to: 6.9
 Requires PHP: 8.4
-Stable tag: 3.0.3
+Stable tag: 3.0.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Text Domain: avpvh-ai-search
@@ -170,6 +170,11 @@ Available filters:
 * `geweb_aisearch_ai_textarea_placeholder` - AI question textarea placeholder
 
 == Changelog ==
+
+= 3.0.4 =
+* Added: AV-PvH File List (`avpvh-filelist`) support (`avpvh_flst_files_*` / `avpvh_flst_settings_*`, `[avpvh_filelist]` shortcode, per-list `FileListDir` path resolution, and *Show in File List* deep links), with legacy Simple File List (`eeSFL_*`) kept as a fallback.
+* Changed: files attached to posts/pages that are not in File List are now marked neutrally (`Not in File List`) and filterable under **Referenced In**, instead of overriding **AI Indexed** with `Error`.
+* Fixed: restored missing `buildSimpleFileListTargets()` helper for removing unreferenced File List entries, and fixed the **Referenced In** scope filter values.
 
 = 3.0.3 =
 * Added: chat archive (Skype chats as searchable documents) with Meilisearch sync, an indexable-content normalizer, and document/OCR fixes that had only been deployed to kb.rechtspreker.nl from a local copy.

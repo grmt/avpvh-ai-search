@@ -73,6 +73,17 @@ jobs:
         WordPress.WP.AlternativeFunctions.rename_rename
         WordPress.DateTime.RestrictedFunctions.date_date
 
+  # Shared tests, coverage (Codecov OIDC) and SonarQube Cloud analysis.
+  quality:
+    name: "Quality"
+    uses: grmt/wp-plugin-ci/.github/workflows/quality.yml@main
+    permissions:
+      contents: read
+      id-token: write
+    secrets: inherit
+    with:
+      sonar-exclusions: "libs/**,languages/**,scripts/**"
+
   # This plugin's own checks.
   lint-js:
     name: "ESLint"

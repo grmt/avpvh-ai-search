@@ -12,7 +12,7 @@ on:
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   ci:
@@ -20,11 +20,15 @@ jobs:
     uses: ./.github/workflows/CI.yml
     permissions:
       contents: read
+      id-token: write
+    secrets: inherit
 
   release:
     name: Build & Publish Plugin ZIP
     runs-on: ubuntu-latest
     needs: ci
+    permissions:
+      contents: write
     steps:
       - name: Determine tag and version
         id: meta

@@ -20,7 +20,14 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "@wordpress/env": "^10.30.0",
+    "@wordpress/env": "^12.1.0",
     "eslint": "^10.15.0"
+  },
+  "overrides": {
+    "@wordpress/env": {
+      "rimraf": "^6.1.4",
+      "isomorphic-git": "^1.44.18",
+      "qs": "^6.17.1"
+    }
   }
 }

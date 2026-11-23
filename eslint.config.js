@@ -83,4 +83,21 @@ module.exports = [
 	  'no-fallthrough': 'error',
 	},
   },
+  {
+	// Browser tests run in Node (Playwright), CommonJS.
+	files: ['tests/e2e/**/*.js'],
+	languageOptions: {
+	  ecmaVersion: 2022,
+	  sourceType: 'commonjs',
+	  globals: {
+		require: 'readonly',
+		module: 'writable',
+		process: 'readonly',
+		__dirname: 'readonly',
+	  },
+	},
+	rules: {
+	  'no-console': 'off',
+	},
+  },
 ];

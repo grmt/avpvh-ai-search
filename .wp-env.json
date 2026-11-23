@@ -1,0 +1,16 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/wp-env.json",
+	"phpVersion": "8.4",
+	"plugins": [],
+	"mappings": {
+		"wp-content/plugins/avpvh-ai-search": "."
+	},
+	"port": 8890,
+	"testsPort": 8891,
+	"config": {
+		"WP_DEBUG": false
+	},
+	"lifecycleScripts": {
+		"afterStart": "npx wp-env run cli wp plugin activate avpvh-ai-search && npx wp-env run cli wp rewrite structure '/%postname%/' --hard && npx wp-env run cli wp option update geweb_aisearch_update_guard_until 0"
+	}
+}

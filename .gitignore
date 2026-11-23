@@ -7,3 +7,7 @@ coverage.xml
 # Personal or site-specific data, never committed (public repo)
 scripts/*.local.json
 docs/*-audit-*.md
+# Browser tests
+test-results/
+playwright-report/
+tests/e2e/.auth/

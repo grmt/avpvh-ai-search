@@ -126,10 +126,11 @@ jobs:
         run: npm install -g npm@${{ env.npm-version }}
 
       - name: "Install NPM dependencies"
-        run: npm ci
+        run: npm ci --ignore-scripts
 
+      # The locked Playwright from node_modules, not an on-demand npx download.
       - name: "Install Chromium"
-        run: npx playwright install --with-deps chromium
+        run: npm run e2e:install-browser
 
       - name: "Start WordPress (wp-env)"
         run: npm run e2e:env:start

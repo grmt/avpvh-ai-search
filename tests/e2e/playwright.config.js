@@ -7,8 +7,8 @@ const { defineConfig, devices } = require('@playwright/test');
 
 const baseURL = process.env.WP_BASE_URL || 'http://localhost:8890';
 const authFile = path.join(__dirname, '.auth', 'admin.json');
-// Playwright's own Chromium does not install on every Linux release; set
-// E2E_BROWSER_CHANNEL=chrome to use the installed Google Chrome instead.
+// E2E_BROWSER_CHANNEL=chrome uses the installed Google Chrome instead of
+// Playwright's own Chromium.
 const channel = process.env.E2E_BROWSER_CHANNEL || undefined;
 
 const { defaultBrowserType: _ipadBrowser, ...ipad } = devices['iPad Pro 11'];
@@ -38,7 +38,7 @@ module.exports = defineConfig({
 		headless: process.env.PW_HEADLESS !== 'false',
 		screenshot: 'only-on-failure',
 		trace: 'retain-on-failure',
-		// Video needs Playwright's ffmpeg, which is not installable everywhere; on in CI.
+		// Video needs Playwright's ffmpeg (npx playwright install ffmpeg); on in CI.
 		video: process.env.CI || process.env.E2E_VIDEO ? 'retain-on-failure' : 'off',
 		launchOptions: { slowMo: Number(process.env.PW_SLOW_MO || 0) },
 	},

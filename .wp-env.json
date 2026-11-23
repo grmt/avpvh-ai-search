@@ -11,6 +11,6 @@
 		"WP_DEBUG": false
 	},
 	"lifecycleScripts": {
-		"afterStart": "npx wp-env run cli wp plugin activate avpvh-ai-search && npx wp-env run cli wp rewrite structure '/%postname%/' --hard"
+		"afterStart": "npx wp-env run cli wp plugin activate avpvh-ai-search && npx wp-env run cli wp rewrite structure '/%postname%/' --hard && npx wp-env run cli wp option update geweb_aisearch_update_guard_until 0"
 	}
 }

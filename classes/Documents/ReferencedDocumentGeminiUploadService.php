@@ -1,6 +1,10 @@
 <?php
 namespace Geweb\AISearch;
 
+// Exception messages here are plain text for logs and JSON responses; they are
+// escaped where they are shown (esc_html in PHP, .text() in JS), not at the throw.
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
 defined('ABSPATH') || exit;
 
 class ReferencedDocumentGeminiUploadService {
@@ -104,10 +108,13 @@ class ReferencedDocumentGeminiUploadService {
             throw new ReferencedDocumentException('Could not create a temporary Markdown file.');
         }
 
+        // tempnam() reserves a unique name; the upload needs a .md extension, so
+        // write next to it and drop the empty reservation file.
         $markdownPath = $tempPath . '.md';
-        @rename($tempPath, $markdownPath);
-        if (file_put_contents($markdownPath, $markdown) === false) {
-            @unlink($markdownPath);
+        $written = file_put_contents($markdownPath, $markdown);
+        wp_delete_file($tempPath);
+        if ($written === false) {
+            wp_delete_file($markdownPath);
             throw new ReferencedDocumentException('Could not write converted Markdown.');
         }
 
@@ -116,7 +123,7 @@ class ReferencedDocumentGeminiUploadService {
 
     private function deleteTemporaryMarkdownFile(string $markdownPath): void {
         if ($markdownPath !== '' && file_exists($markdownPath)) {
-            @unlink($markdownPath);
+            wp_delete_file($markdownPath);
         }
     }
 

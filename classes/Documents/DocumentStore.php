@@ -12,8 +12,6 @@ class DocumentStore {
     private const OPTION_REFERENCED_CACHE = 'geweb_aisearch_referenced_documents_cache';
     private const OPTION_REFERENCED_CACHE_TIME = 'geweb_aisearch_referenced_documents_cache_time';
     private const OPTION_REFERENCED_CACHE_DEBUG = 'geweb_aisearch_referenced_documents_cache_debug';
-    private const SQL_SELECT_ALL_FROM = 'SELECT * FROM ';
-    private const SQL_DELETE_FROM = 'DELETE FROM ';
     private const LOG_DOCUMENT_ID_SUFFIX = ' (document_id=';
     private static string $documentsTable;
     private static string $refsTable;
@@ -83,9 +81,22 @@ class DocumentStore {
             return;
         }
 
-        $hasOwnerKey = (bool) $wpdb->get_var("SHOW COLUMNS FROM " . self::$refsTable . " LIKE 'owner_key'");
-        $addOwnerKey = $hasOwnerKey ? '' : "ADD COLUMN owner_key VARCHAR(191) NOT NULL DEFAULT '' FIRST, ";
-        $wpdb->query("ALTER TABLE " . self::$refsTable . " {$addOwnerKey}DROP PRIMARY KEY, ADD PRIMARY KEY (owner_key, post_id, document_id)");
+        if (self::hasOwnerKeyColumn($wpdb, self::$refsTable)) {
+            $wpdb->query($wpdb->prepare(
+                'ALTER TABLE %i DROP PRIMARY KEY, ADD PRIMARY KEY (owner_key, post_id, document_id)',
+                self::$refsTable
+            ));
+            return;
+        }
+
+        $wpdb->query($wpdb->prepare(
+            "ALTER TABLE %i ADD COLUMN owner_key VARCHAR(191) NOT NULL DEFAULT '' FIRST, DROP PRIMARY KEY, ADD PRIMARY KEY (owner_key, post_id, document_id)",
+            self::$refsTable
+        ));
+    }
+
+    private static function hasOwnerKeyColumn(\wpdb $wpdb, string $table): bool {
+        return (bool) $wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $table, 'owner_key'));
     }
 
     /**
@@ -117,10 +128,7 @@ class DocumentStore {
             return;
         }
 
-        $docsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$documentsTable . " LIKE 'owner_key'");
-        $refsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM " . self::$refsTable . " LIKE 'owner_key'");
-
-        if ($docsHasOwnerKey && $refsHasOwnerKey) {
+        if (self::hasOwnerKeyColumn($wpdb, self::$documentsTable) && self::hasOwnerKeyColumn($wpdb, self::$refsTable)) {
             self::removeLegacyGlobalUniqueIndexes($wpdb);
             return;
         }
@@ -129,7 +137,7 @@ class DocumentStore {
     }
 
     private static function removeLegacyGlobalUniqueIndexes(\wpdb $wpdb): void {
-        $indexRows = $wpdb->get_results("SHOW INDEX FROM " . self::$documentsTable, ARRAY_A);
+        $indexRows = $wpdb->get_results($wpdb->prepare('SHOW INDEX FROM %i', self::$documentsTable), ARRAY_A);
         if (!is_array($indexRows)) {
             return;
         }
@@ -148,7 +156,7 @@ class DocumentStore {
         ];
         foreach ($legacyIndexes as $legacyIndex => $replacementIndex) {
             if (isset($indexNames[$legacyIndex], $indexNames[$replacementIndex])) {
-                $wpdb->query("ALTER TABLE " . self::$documentsTable . " DROP INDEX `{$legacyIndex}`");
+                $wpdb->query($wpdb->prepare('ALTER TABLE %i DROP INDEX %i', self::$documentsTable, $legacyIndex));
             }
         }
     }
@@ -197,7 +205,8 @@ class DocumentStore {
         global $wpdb;
 
         return (int) $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM " . self::$documentsTable . " WHERE owner_key = %s AND file_hash = %s",
+            'SELECT id FROM %i WHERE owner_key = %s AND file_hash = %s',
+            self::$documentsTable,
             $this->ownerKey,
             $fileHash
         ));
@@ -290,7 +299,8 @@ class DocumentStore {
      */
     private function resolveDocumentInsertRace(\wpdb $wpdb, AIProviderInterface $gemini, string $fileHash, string $geminiDocName, string $displayName): ?int {
         $existing = $wpdb->get_row($wpdb->prepare(
-            "SELECT id, gemini_doc_name FROM " . self::$documentsTable . " WHERE owner_key = %s AND file_hash = %s",
+            'SELECT id, gemini_doc_name FROM %i WHERE owner_key = %s AND file_hash = %s',
+            self::$documentsTable,
             $this->ownerKey,
             $fileHash
         ), ARRAY_A);
@@ -407,16 +417,19 @@ class DocumentStore {
         $documentIds = array_values(array_unique(array_map('intval', $documentIds)));
 
         // First, find out which documents are currently associated
-        $currentDocIds = $wpdb->get_col($wpdb->prepare("SELECT document_id FROM " . self::$refsTable . " WHERE owner_key = %s AND post_id = %d", $this->ownerKey, $postId));
+        $currentDocIds = $wpdb->get_col($wpdb->prepare('SELECT document_id FROM %i WHERE owner_key = %s AND post_id = %d', self::$refsTable, $this->ownerKey, $postId));
         $currentDocIds = array_values(array_unique(array_map('intval', is_array($currentDocIds) ? $currentDocIds : [])));
 
         // Find which associations to remove
         $toRemove = array_diff($currentDocIds, $documentIds);
         if (!empty($toRemove)) {
-            $placeholders = implode(', ', array_fill(0, count($toRemove), '%d'));
-            $sql = self::SQL_DELETE_FROM . self::$refsTable . " WHERE owner_key = %s AND post_id = %d AND document_id IN ({$placeholders})";
-            $args = array_merge([$this->ownerKey, $postId], array_map('intval', array_values($toRemove)));
-            $wpdb->query($wpdb->prepare($sql, $args));
+            foreach ($toRemove as $docId) {
+                $wpdb->delete(
+                    self::$refsTable,
+                    ['owner_key' => $this->ownerKey, 'post_id' => $postId, 'document_id' => (int) $docId],
+                    ['%s', '%d', '%d']
+                );
+            }
             $this->cleanupOrphanedDocuments($toRemove);
         }
 
@@ -452,10 +465,10 @@ class DocumentStore {
         $gemini = ProviderFactory::make();
 
         foreach ($documentIds as $docId) {
-            $count = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM " . self::$refsTable . " WHERE owner_key = %s AND document_id = %d", $this->ownerKey, $docId));
+            $count = $wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM %i WHERE owner_key = %s AND document_id = %d', self::$refsTable, $this->ownerKey, $docId));
             if ((int) $count === 0) {
                 // This document is an orphan, delete it from Gemini and our DB
-                $doc = $wpdb->get_row($wpdb->prepare(self::SQL_SELECT_ALL_FROM . self::$documentsTable . " WHERE owner_key = %s AND id = %d", $this->ownerKey, $docId));
+                $doc = $wpdb->get_row($wpdb->prepare('SELECT * FROM %i WHERE owner_key = %s AND id = %d', self::$documentsTable, $this->ownerKey, $docId));
                 if ($doc) {
                     try {
                         $gemini->deleteDocument($doc->gemini_doc_name);
@@ -477,7 +490,7 @@ class DocumentStore {
         self::init();
         global $wpdb;
         $results = $wpdb->get_results(
-            $wpdb->prepare(self::SQL_SELECT_ALL_FROM . self::$documentsTable . " WHERE owner_key = %s", $this->ownerKey),
+            $wpdb->prepare('SELECT * FROM %i WHERE owner_key = %s', self::$documentsTable, $this->ownerKey),
             ARRAY_A
         );
         return is_array($results) ? $results : [];

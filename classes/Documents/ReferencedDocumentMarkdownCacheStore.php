@@ -90,7 +90,8 @@ class ReferencedDocumentMarkdownCacheStore {
 
         global $wpdb;
         $markdown = $wpdb->get_var($wpdb->prepare(
-            "SELECT markdown FROM " . self::$table . " WHERE owner_key = %s AND file_hash = %s",
+            'SELECT markdown FROM %i WHERE owner_key = %s AND file_hash = %s',
+            self::$table,
             $this->ownerKey,
             $fileHash
         ));
@@ -107,7 +108,8 @@ class ReferencedDocumentMarkdownCacheStore {
 
         global $wpdb;
         $displayName = $wpdb->get_var($wpdb->prepare(
-            "SELECT display_name FROM " . self::$table . " WHERE owner_key = %s AND file_hash = %s",
+            'SELECT display_name FROM %i WHERE owner_key = %s AND file_hash = %s',
+            self::$table,
             $this->ownerKey,
             $fileHash
         ));

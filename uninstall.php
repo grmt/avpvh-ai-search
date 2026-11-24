@@ -41,8 +41,8 @@ if (class_exists('\\Geweb\\AISearch\\ProviderFactory')) {
 global $wpdb;
 $documentsTable = $wpdb->prefix . 'geweb_ai_documents';
 $refsTable = $wpdb->prefix . 'geweb_ai_post_document_refs';
-$wpdb->query("DROP TABLE IF EXISTS {$refsTable}");
-$wpdb->query("DROP TABLE IF EXISTS {$documentsTable}");
+$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $refsTable));
+$wpdb->query($wpdb->prepare('DROP TABLE IF EXISTS %i', $documentsTable));
 
 // Delete options
 delete_option('geweb_aisearch_model');

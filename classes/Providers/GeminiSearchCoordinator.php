@@ -1,6 +1,10 @@
 <?php
 namespace Geweb\AISearch;
 
+// Exception messages here are plain text for logs and JSON responses; they are
+// escaped where they are shown (esc_html in PHP, .text() in JS), not at the throw.
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
 defined('ABSPATH') || exit;
 
 /**

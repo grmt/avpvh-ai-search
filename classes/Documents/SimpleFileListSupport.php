@@ -9,7 +9,6 @@ defined('ABSPATH') || exit;
 class SimpleFileListSupport {
     use SimpleFileListSupportHelpersTrait;
 
-    private const SQL_SHOW_TABLES_LIKE = 'SHOW TABLES LIKE %s';
     private const AVPVH_FILES_OPTION_PREFIX = 'avpvh_flst_files_';
     private const AVPVH_SETTINGS_OPTION_PREFIX = 'avpvh_flst_settings_';
     private const AVPVH_DEFAULT_DIR = 'wp-content/uploads/avpvh-filelist/';
@@ -215,7 +214,7 @@ class SimpleFileListSupport {
         }
 
         foreach ($this->getSflCandidateTableNames() as $tableName) {
-            $rows = $wpdb->get_results('SELECT * FROM ' . $tableName, ARRAY_A);
+            $rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM %i', $tableName), ARRAY_A);
             if (is_array($rows)) {
                 foreach ($rows as $row) {
                     $this->scanSimpleFileListMetadata($row, $targets, $niceNames);
@@ -248,7 +247,7 @@ class SimpleFileListSupport {
         }
 
         foreach ($this->getSflCandidateTableNames() as $tableName) {
-            $rows = $wpdb->get_results('SELECT * FROM ' . $tableName, ARRAY_A);
+            $rows = $wpdb->get_results($wpdb->prepare('SELECT * FROM %i', $tableName), ARRAY_A);
             if (is_array($rows)) {
                 foreach ($rows as $row) {
                     $this->scanSimpleFileListModifiedMetadata($row, $targets, $modifiedMap);

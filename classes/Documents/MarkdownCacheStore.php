@@ -87,7 +87,8 @@ class MarkdownCacheStore {
 
         global $wpdb;
         $markdown = $wpdb->get_var($wpdb->prepare(
-            "SELECT markdown FROM " . self::$table . " WHERE owner_key = %s AND post_id = %d",
+            'SELECT markdown FROM %i WHERE owner_key = %s AND post_id = %d',
+            self::$table,
             $this->ownerKey,
             $postId
         ));
@@ -103,7 +104,8 @@ class MarkdownCacheStore {
 
         global $wpdb;
         $bytes = $wpdb->get_var($wpdb->prepare(
-            "SELECT LENGTH(markdown) FROM " . self::$table . " WHERE owner_key = %s AND post_id = %d",
+            'SELECT LENGTH(markdown) FROM %i WHERE owner_key = %s AND post_id = %d',
+            self::$table,
             $this->ownerKey,
             $postId
         ));
@@ -135,7 +137,7 @@ class MarkdownCacheStore {
     public static function deleteAllMarkdown(): void {
         self::init();
         global $wpdb;
-        $wpdb->query("DELETE FROM " . self::$table);
+        $wpdb->query($wpdb->prepare('DELETE FROM %i', self::$table));
     }
 
     /**
@@ -146,7 +148,8 @@ class MarkdownCacheStore {
         global $wpdb;
         $row = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT COUNT(*) AS item_count, COALESCE(SUM(CHAR_LENGTH(markdown)), 0) AS total_bytes FROM " . self::$table . " WHERE owner_key = %s",
+                'SELECT COUNT(*) AS item_count, COALESCE(SUM(CHAR_LENGTH(markdown)), 0) AS total_bytes FROM %i WHERE owner_key = %s',
+                self::$table,
                 $this->ownerKey
             ),
             ARRAY_A

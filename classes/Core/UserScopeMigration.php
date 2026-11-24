@@ -287,8 +287,8 @@ class UserScopeMigration {
         $documentsTable = $wpdb->prefix . 'geweb_ai_documents';
         $refsTable = $wpdb->prefix . 'geweb_ai_post_document_refs';
 
-        $docsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM {$documentsTable} LIKE 'owner_key'");
-        $refsHasOwnerKey = $wpdb->get_var("SHOW COLUMNS FROM {$refsTable} LIKE 'owner_key'");
+        $docsHasOwnerKey = $wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $documentsTable, 'owner_key'));
+        $refsHasOwnerKey = $wpdb->get_var($wpdb->prepare('SHOW COLUMNS FROM %i LIKE %s', $refsTable, 'owner_key'));
         if (!$docsHasOwnerKey || !$refsHasOwnerKey) {
             return;
         }
@@ -304,7 +304,12 @@ class UserScopeMigration {
         global $wpdb;
 
         $rows = $wpdb->get_results(
-            "SELECT * FROM {$documentsTable} WHERE owner_key IS NULL OR owner_key = '' OR owner_key = '0'",
+            $wpdb->prepare(
+                'SELECT * FROM %i WHERE owner_key IS NULL OR owner_key = %s OR owner_key = %s',
+                $documentsTable,
+                '',
+                '0'
+            ),
             ARRAY_A
         );
         if (!is_array($rows) || empty($rows)) {
@@ -325,7 +330,8 @@ class UserScopeMigration {
 
         $rows = $wpdb->get_results(
             $wpdb->prepare(
-                "SELECT * FROM {$documentsTable} WHERE owner_key = %s",
+                "SELECT * FROM %i WHERE owner_key = %s",
+                $documentsTable,
                 $sourceOwnerKey
             ),
             ARRAY_A
@@ -360,7 +366,8 @@ class UserScopeMigration {
 
         $targetDocument = $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT id FROM {$documentsTable} WHERE owner_key = %s AND (file_hash = %s OR gemini_doc_name = %s) LIMIT 1",
+                "SELECT id FROM %i WHERE owner_key = %s AND (file_hash = %s OR gemini_doc_name = %s) LIMIT 1",
+                $documentsTable,
                 $targetOwnerKey,
                 $fileHash,
                 $geminiDocName
@@ -396,7 +403,8 @@ class UserScopeMigration {
         $sourcePostIds = $sourceOwnerKey === null
             ? $wpdb->get_col(
                 $wpdb->prepare(
-                    "SELECT post_id FROM {$refsTable} WHERE document_id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    "SELECT post_id FROM %i WHERE document_id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    $refsTable,
                     $sourceDocumentId,
                     '',
                     '0'
@@ -404,7 +412,8 @@ class UserScopeMigration {
             )
             : $wpdb->get_col(
                 $wpdb->prepare(
-                    "SELECT post_id FROM {$refsTable} WHERE owner_key = %s AND document_id = %d",
+                    "SELECT post_id FROM %i WHERE owner_key = %s AND document_id = %d",
+                    $refsTable,
                     $sourceOwnerKey,
                     $sourceDocumentId
                 )
@@ -419,7 +428,8 @@ class UserScopeMigration {
 
                 $exists = (int) $wpdb->get_var(
                     $wpdb->prepare(
-                        "SELECT COUNT(*) FROM {$refsTable} WHERE owner_key = %s AND post_id = %d AND document_id = %d",
+                        "SELECT COUNT(*) FROM %i WHERE owner_key = %s AND post_id = %d AND document_id = %d",
+                        $refsTable,
                         $targetOwnerKey,
                         $postId,
                         $targetDocumentId
@@ -455,7 +465,8 @@ class UserScopeMigration {
         if ($sourceOwnerKey === null) {
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE {$refsTable} SET owner_key = %s WHERE document_id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    "UPDATE %i SET owner_key = %s WHERE document_id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    $refsTable,
                     $targetOwnerKey,
                     $sourceDocumentId,
                     '',
@@ -467,7 +478,8 @@ class UserScopeMigration {
 
         $wpdb->query(
             $wpdb->prepare(
-                "UPDATE {$refsTable} SET owner_key = %s WHERE owner_key = %s AND document_id = %d",
+                "UPDATE %i SET owner_key = %s WHERE owner_key = %s AND document_id = %d",
+                $refsTable,
                 $targetOwnerKey,
                 $sourceOwnerKey,
                 $sourceDocumentId
@@ -486,7 +498,8 @@ class UserScopeMigration {
         if ($sourceOwnerKey === null) {
             $wpdb->query(
                 $wpdb->prepare(
-                    "UPDATE {$documentsTable} SET owner_key = %s WHERE id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    "UPDATE %i SET owner_key = %s WHERE id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    $documentsTable,
                     $targetOwnerKey,
                     $sourceDocumentId,
                     '',
@@ -498,7 +511,8 @@ class UserScopeMigration {
 
         $wpdb->query(
             $wpdb->prepare(
-                "UPDATE {$documentsTable} SET owner_key = %s WHERE id = %d AND owner_key = %s",
+                "UPDATE %i SET owner_key = %s WHERE id = %d AND owner_key = %s",
+                $documentsTable,
                 $targetOwnerKey,
                 $sourceDocumentId,
                 $sourceOwnerKey
@@ -512,7 +526,8 @@ class UserScopeMigration {
         if ($sourceOwnerKey === null) {
             $wpdb->query(
                 $wpdb->prepare(
-                    "DELETE FROM {$documentsTable} WHERE id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    "DELETE FROM %i WHERE id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    $documentsTable,
                     $sourceDocumentId,
                     '',
                     '0'
@@ -537,7 +552,8 @@ class UserScopeMigration {
         if ($sourceOwnerKey === null) {
             $wpdb->query(
                 $wpdb->prepare(
-                    "DELETE FROM {$refsTable} WHERE document_id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    "DELETE FROM %i WHERE document_id = %d AND (owner_key IS NULL OR owner_key = %s OR owner_key = %s)",
+                    $refsTable,
                     $sourceDocumentId,
                     '',
                     '0'

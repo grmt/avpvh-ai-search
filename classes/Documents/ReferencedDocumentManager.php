@@ -8,7 +8,6 @@ class ReferencedDocumentManager {
 
     private const OPTION_REFERENCED_SELECTION_TARGETS = 'geweb_aisearch_referenced_document_selection_targets';
     private const OPTION_REFERENCED_IMAGE_PROCESSING_MODES = 'geweb_aisearch_referenced_document_image_processing_modes';
-    private const SQL_SELECT_ALL_FROM = 'SELECT * FROM ';
 
     private DocumentStore $documentStore;
     private string $documentsTable;
@@ -132,7 +131,7 @@ class ReferencedDocumentManager {
         global $wpdb;
 
         $document = $wpdb->get_row(
-            $wpdb->prepare(self::SQL_SELECT_ALL_FROM . $this->documentsTable . " WHERE owner_key = %s AND file_hash = %s", $this->ownerKey, $fileHash),
+            $wpdb->prepare('SELECT * FROM %i WHERE owner_key = %s AND file_hash = %s', $this->documentsTable, $this->ownerKey, $fileHash),
             ARRAY_A
         );
 
@@ -304,7 +303,8 @@ class ReferencedDocumentManager {
 
             $exists = $wpdb->get_var(
                 $wpdb->prepare(
-                    "SELECT COUNT(*) FROM " . $this->refsTable . " WHERE owner_key = %s AND post_id = %d AND document_id = %d",
+                    'SELECT COUNT(*) FROM %i WHERE owner_key = %s AND post_id = %d AND document_id = %d',
+                    $this->refsTable,
                     $this->ownerKey,
                     $postId,
                     $documentId

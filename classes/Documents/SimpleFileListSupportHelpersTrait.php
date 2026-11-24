@@ -504,9 +504,9 @@ trait SimpleFileListSupportHelpersTrait {
 
         global $wpdb;
         return array_values(array_unique(array_filter(array_merge(
-            $wpdb->get_col($wpdb->prepare(self::SQL_SHOW_TABLES_LIKE, $wpdb->esc_like($wpdb->prefix . 'eeSFL') . '%')),
-            $wpdb->get_col($wpdb->prepare(self::SQL_SHOW_TABLES_LIKE, $wpdb->esc_like($wpdb->prefix . 'simple_file_list') . '%')),
-            $wpdb->get_col($wpdb->prepare(self::SQL_SHOW_TABLES_LIKE, $wpdb->esc_like($wpdb->prefix . 'eesfl') . '%'))
+            $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($wpdb->prefix . 'eeSFL') . '%')),
+            $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($wpdb->prefix . 'simple_file_list') . '%')),
+            $wpdb->get_col($wpdb->prepare('SHOW TABLES LIKE %s', $wpdb->esc_like($wpdb->prefix . 'eesfl') . '%'))
         ))));
     }
 

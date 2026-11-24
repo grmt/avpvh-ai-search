@@ -45,9 +45,11 @@ class AdminPageSections {
         $latestConversationId = isset($latestConversation['id']) ? (string) $latestConversation['id'] : '';
 
         echo '<p class="description" style="margin:0 0 12px;">';
+        /* translators: %d: number of saved chats. */
         echo esc_html(sprintf(_n('%d saved chat.', '%d saved chats.', count($conversations), 'avpvh-ai-search'), count($conversations)));
         echo '</p>';
         echo '<p class="description" style="margin:0 0 12px;">';
+        /* translators: %d: number of chats that are kept automatically. */
         echo esc_html(sprintf(__('The %d most recently used chats are kept automatically; the oldest unused ones are pruned first.', 'avpvh-ai-search'), self::DEFAULT_CONVERSATION_LIMIT));
         echo '</p>';
 

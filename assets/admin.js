@@ -1898,7 +1898,7 @@ return;
 												isProcessing = false;
 										}
 								} else {
-										$('#geweb-generate-status').html('<p style="color: red;">Error: ' + response.data.message + '</p>');
+										$('#geweb-generate-status').empty().append($('<p style="color: red;"></p>').text('Error: ' + (response.data?.message || 'Unknown error')));
 										$('#geweb-generate-library').prop('disabled', false);
 										isProcessing = false;
 								}
@@ -1962,7 +1962,7 @@ return;
 												isBuildingMarkdownCache = false;
 										}
 								} else {
-										$('#geweb-build-markdown-cache-status').html('<p style="color: red;">Error: ' + response.data.message + '</p>');
+										$('#geweb-build-markdown-cache-status').empty().append($('<p style="color: red;"></p>').text('Error: ' + (response.data?.message || 'Unknown error')));
 										$('#geweb-build-markdown-cache').prop('disabled', false);
 										isBuildingMarkdownCache = false;
 								}

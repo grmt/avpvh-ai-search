@@ -1,6 +1,10 @@
 <?php
 namespace Geweb\AISearch;
 
+// Exception messages here are plain text for logs and JSON responses; they are
+// escaped where they are shown (esc_html in PHP, .text() in JS), not at the throw.
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
 defined('ABSPATH') || exit;
 
 /**
@@ -315,7 +319,7 @@ class XlsxMarkdownExtractor {
             }
         } else {
             if (preg_match('/<v\b[^>]*>(.*?)<\/v>/si', $cellXml, $match)) {
-                $value = html_entity_decode(trim(strip_tags($match[1])), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+                $value = html_entity_decode(wp_strip_all_tags($match[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             } elseif (preg_match('/<t\b[^>]*>(.*?)<\/t>/si', $cellXml, $match)) {
                 $value = html_entity_decode(trim($match[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
             }
@@ -329,7 +333,7 @@ class XlsxMarkdownExtractor {
         }
 
         if ($value === '' && preg_match('/<f\b[^>]*>(.*?)<\/f>/si', $cellXml, $formulaMatch)) {
-            $value = 'Formula: ' . html_entity_decode(trim(strip_tags($formulaMatch[1])), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $value = 'Formula: ' . html_entity_decode(wp_strip_all_tags($formulaMatch[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8');
         }
 
         return $this->normalizeCellText($value);
@@ -337,7 +341,7 @@ class XlsxMarkdownExtractor {
 
     private function extractInlineText(string $xml): string {
         if (!preg_match_all('/<t\b[^>]*>(.*?)<\/t>/si', $xml, $matches)) {
-            return $this->normalizeCellText(html_entity_decode(trim(strip_tags($xml)), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            return $this->normalizeCellText(html_entity_decode(wp_strip_all_tags($xml), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
         }
 
         $parts = array_map(static function (string $text): string {

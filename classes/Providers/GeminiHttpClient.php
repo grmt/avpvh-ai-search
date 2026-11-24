@@ -1,6 +1,10 @@
 <?php
 namespace Geweb\AISearch;
 
+// Exception messages here are plain text for logs and JSON responses; they are
+// escaped where they are shown (esc_html in PHP, .text() in JS), not at the throw.
+// phpcs:disable WordPress.Security.EscapeOutput.ExceptionNotEscaped
+
 defined('ABSPATH') || exit;
 
 /**
@@ -241,6 +245,9 @@ class GeminiHttpClient {
             $streamAnswer = '';
             $streamErrorMessage = '';
             $streamAccumulator = new GeminiStreamingResponseAccumulator($this->streamProgressCallback);
+            // The WordPress HTTP API buffers the whole response; streaming the
+            // answer token by token needs cURL's write callback.
+            // phpcs:disable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt_array, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_getinfo, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close
             $curl = curl_init($url);
             if ($curl === false) {
                 throw new \Exception('Could not initialize cURL for Gemini streaming request.');
@@ -290,6 +297,7 @@ class GeminiHttpClient {
             $httpCode = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
             $curlError = curl_error($curl);
             curl_close($curl);
+            // phpcs:enable WordPress.WP.AlternativeFunctions.curl_curl_init, WordPress.WP.AlternativeFunctions.curl_curl_setopt_array, WordPress.WP.AlternativeFunctions.curl_curl_exec, WordPress.WP.AlternativeFunctions.curl_curl_getinfo, WordPress.WP.AlternativeFunctions.curl_curl_error, WordPress.WP.AlternativeFunctions.curl_curl_close
 
             if ($lineBuffer !== '' || !empty($eventDataLines)) {
                 $lineBuffer = '';

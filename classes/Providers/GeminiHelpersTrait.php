@@ -588,7 +588,7 @@ trait GeminiHelpersTrait {
     private function logWarning(string $message): void { error_log($this->buildLogLine('WARN', $message)); }
     private function logError(string $message): void { error_log($this->buildLogLine('ERROR', $message)); }
     private function buildLogLine(string $level, string $message): string {
-        $timestamp = function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : date('Y-m-d H:i:s');
+        $timestamp = function_exists('wp_date') ? wp_date('Y-m-d H:i:s') : gmdate('Y-m-d H:i:s');
         return sprintf('%s geweb-ai-search [%s] %s', $timestamp, strtoupper(trim($level)), $message);
     }
     private function createHttpClient(): GeminiHttpClient {

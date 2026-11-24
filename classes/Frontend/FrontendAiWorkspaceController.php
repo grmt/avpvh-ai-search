@@ -237,6 +237,7 @@ class FrontendAiWorkspaceController {
                 'includeSourceAgainTitle' => __('Allow this source again for the next question', 'avpvh-ai-search'),
                 'useAllSourcesAgain' => __('Use all sources again', 'avpvh-ai-search'),
                 'oneSourceTemporarilyExcluded' => __('1 source temporarily excluded for the next question.', 'avpvh-ai-search'),
+                /* translators: %d: number of excluded sources. */
                 'multipleSourcesTemporarilyExcluded' => __('%d sources temporarily excluded for the next question.', 'avpvh-ai-search'),
                 'savedChat' => __('Saved chat', 'avpvh-ai-search'),
                 'untitledConversation' => __('Untitled chat', 'avpvh-ai-search'),
